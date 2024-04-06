@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://dj0srqtgnwpi0"]
+
+[ext_resource type="Script" path="res://Gameplay/Die.cs" id="1_71oj2"]
+[ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="1_cgi6w"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ap5g1"]
+size = Vector2(128, 128)
+
+[node name="Die" type="Area2D"]
+script = ExtResource("1_71oj2")
+
+[node name="DieCollision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_ap5g1")
+
+[node name="DieSprite" type="Sprite2D" parent="."]
+modulate = Color(0.607843, 0.8, 0.85098, 1)
+texture = ExtResource("1_cgi6w")
+
+[node name="RollTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true
+
+[connection signal="input_event" from="." to="." method="rollDice"]
+[connection signal="timeout" from="RollTimer" to="." method="rollEnded"]
