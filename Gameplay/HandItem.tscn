@@ -16,3 +16,5 @@ shape = SubResource("RectangleShape2D_tprsn")
 [node name="HandSprite" type="Sprite2D" parent="."]
 scale = Vector2(0.65625, 0.65625)
 texture = ExtResource("1_3e30l")
+
+[connection signal="input_event" from="." to="." method="select"]

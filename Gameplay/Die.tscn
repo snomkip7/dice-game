@@ -17,7 +17,7 @@ modulate = Color(0.607843, 0.8, 0.85098, 1)
 texture = ExtResource("1_cgi6w")
 
 [node name="RollTimer" type="Timer" parent="."]
-wait_time = 3.0
+wait_time = 1.5
 one_shot = true
 
 [connection signal="input_event" from="." to="." method="rollDice"]

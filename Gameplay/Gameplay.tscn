@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://cns22pubuk5fe"]
+[gd_scene load_steps=7 format=3 uid="uid://cns22pubuk5fe"]
 
 [ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="1_8bsum"]
 [ext_resource type="Script" path="res://Gameplay/Gameplay.cs" id="1_smwj2"]
 [ext_resource type="PackedScene" uid="uid://dqtivyqwycuck" path="res://Gameplay/HandItem.tscn" id="2_y118l"]
 [ext_resource type="PackedScene" uid="uid://dj0srqtgnwpi0" path="res://Gameplay/Die.tscn" id="4_b6pja"]
+[ext_resource type="PackedScene" uid="uid://ejlhc4fuui1p" path="res://Gameplay/Enemy.tscn" id="5_lxyph"]
+[ext_resource type="PackedScene" uid="uid://dkvo8m21fvd2m" path="res://Gameplay/Player.tscn" id="5_on0ec"]
 
 [node name="Gameplay" type="Node2D"]
 script = ExtResource("1_smwj2")
@@ -14,29 +16,27 @@ position = Vector2(135.5, 471.5)
 scale = Vector2(2.10156, 2.74219)
 texture = ExtResource("1_8bsum")
 
-[node name="Enemy" type="Sprite2D" parent="."]
-position = Vector2(972, 128.5)
-scale = Vector2(2.8125, 1.96094)
-texture = ExtResource("1_8bsum")
+[node name="Enemy" parent="." instance=ExtResource("5_lxyph")]
+
+[node name="Player" parent="." instance=ExtResource("5_on0ec")]
 
 [node name="Die" parent="." instance=ExtResource("4_b6pja")]
-position = Vector2(809, 486)
+position = Vector2(623, 457)
 
-[node name="PlayRollButton" type="Button" parent="."]
-visible = false
-offset_left = 552.0
-offset_top = 409.0
-offset_right = 724.0
-offset_bottom = 556.0
+[node name="PlayButton" type="Button" parent="."]
+offset_left = 807.0
+offset_top = 462.0
+offset_right = 979.0
+offset_bottom = 609.0
 text = "play roll"
 
 [node name="HoldRollButton" type="Button" parent="."]
 visible = false
-offset_left = 343.0
+offset_left = 355.0
 offset_top = 410.0
-offset_right = 515.0
+offset_right = 527.0
 offset_bottom = 557.0
 text = "add roll to hand"
 
-[connection signal="pressed" from="PlayRollButton" to="." method="playRoll"]
+[connection signal="pressed" from="PlayButton" to="." method="playRoll"]
 [connection signal="pressed" from="HoldRollButton" to="." method="holdRoll"]
