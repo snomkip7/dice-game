@@ -9,7 +9,7 @@ public partial class HandItem : Area2D
 
 	public override void _Ready()
 	{
-		updateSprite(1);
+		updateSprite(1); // starting value
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -17,10 +17,10 @@ public partial class HandItem : Area2D
 	{
 	}
 
-	public void select(Node viewport, InputEvent @event, int shape_idx){
+	public void select(Node viewport, InputEvent @event, int shape_idx){ // input event
 		if(@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed == true && roll != -1){
-			selected = !selected;
-			if(selected){
+			selected = !selected; 
+			if(selected){ // changing stuff depending on if its selected or nah
 				updateSprite(.5f);
 				GetParent<Gameplay>().numSelected += 1;
 			} else{
@@ -31,13 +31,14 @@ public partial class HandItem : Area2D
 		}
 	}
 
-	public void updateItem(int roll){
+	public void updateItem(int roll){ // used when changing the value of the handItem
 		this.roll = roll;
 		full = true;
 		updateSprite(1);
-		if(roll==-1){
+		if(roll==-1){ // -1 is used to reset to default
 			selected = false;
 			full = false;
+			GetParent<Gameplay>().numSelected -= 1;
 		}
 	}
 

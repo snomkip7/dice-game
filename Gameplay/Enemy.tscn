@@ -10,3 +10,8 @@ script = ExtResource("1_fh0ym")
 position = Vector2(972, 128.5)
 scale = Vector2(2.8125, 1.96094)
 texture = ExtResource("2_wvtlu")
+
+[node name="EnemyDie" type="Sprite2D" parent="."]
+position = Vector2(532.5, 80.5)
+scale = Vector2(0.742188, 0.742188)
+texture = ExtResource("2_wvtlu")

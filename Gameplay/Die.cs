@@ -20,18 +20,18 @@ public partial class Die : Area2D
 	{
 	}
 
-	public void rollDice(Node viewport, InputEvent @event, int shape_idx){
+	public void rollDice(Node viewport, InputEvent @event, int shape_idx){ // input event
 		if(@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed == true){
-			if(canRoll){
+			if(canRoll){ // roll the die if nothing else is going on
 				GD.Print("ROLL THE DICE");
 				gameplay.unSelect();
 				roll();
-			} else if(canRoll==false&&gameplay.dieSelected){
+			} else if(canRoll==false&&gameplay.dieSelected){ // deselects die if it cant role and die is selected
 				GD.Print("deselect die");
 				gameplay.dieSelected = false;
 				opacity = 1;
 				updateSprite();
-			} else{
+			} else{ // deselects die if it cant roll and isnt selected
 				GD.Print("reselect die");
 				gameplay.dieSelected = true;
 				opacity = .8f;
@@ -40,14 +40,14 @@ public partial class Die : Area2D
 		}
 	}
 
-	public void roll(){
+	public void roll(){ // starts the rolling animation (when there is an animation)
 		canRoll = false;
 		GetNode<Timer>("RollTimer").Start();
 		GD.Print("do be rollin");
 		opacity = 0.8f;
 	}
 
-	public void reset(){
+	public void reset(){ // resets the die to a base value
 		nextRoll = -1;
 		opacity = 1;
 		updateSprite();
@@ -55,7 +55,7 @@ public partial class Die : Area2D
 	}
 
 	public void rollEnded(){ // rn it starts after 1 sec, but should be made to start after animation ended
-		nextRoll = new RandomNumberGenerator().RandiRange(1, sides);
+		nextRoll = new RandomNumberGenerator().RandiRange(1, sides); // randomly selects a number and updates sprite
 		//canRole = false;
 		GD.Print("roll ended");
 		updateSprite();
