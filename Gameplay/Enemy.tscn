@@ -15,3 +15,11 @@ texture = ExtResource("2_wvtlu")
 position = Vector2(532.5, 80.5)
 scale = Vector2(0.742188, 0.742188)
 texture = ExtResource("2_wvtlu")
+
+[node name="DecisionTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="PoisonTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="DecisionTimer" to="." method="rollOrPlay"]
