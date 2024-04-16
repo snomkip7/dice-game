@@ -19,7 +19,8 @@ texture = ExtResource("2_wvtlu")
 [node name="DecisionTimer" type="Timer" parent="."]
 one_shot = true
 
-[node name="PoisonTimer" type="Timer" parent="."]
+[node name="EffectTimer" type="Timer" parent="."]
 one_shot = true
 
 [connection signal="timeout" from="DecisionTimer" to="." method="rollOrPlay"]
+[connection signal="timeout" from="EffectTimer" to="." method="dmgCalculation"]

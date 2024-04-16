@@ -7,16 +7,21 @@ public partial class Gameplay : Node2D
 	public PackedScene handItem;
 
 	public Enemy enemy;
+	public Player player;
 	public HandItem[] handItems;
 	public int handSize = 4; // will be changed with shop items probably
 	public int numSelected = 0; // num of selected handItems
 	public bool dieSelected = false;
+	public string[] dieEffects;
+	public string[] enemyDieEffects;
 	
 	public override void _Ready()
 	{
 		handItems = new HandItem[handSize]; // setting things up
+		dieEffects = new string[handSize];
 		instanceHandItems();
 		enemy = GetNode<Enemy>("Enemy");
+		player = GetNode<Player>("Player");
 	}
 
 	
@@ -106,18 +111,154 @@ public partial class Gameplay : Node2D
 		dieSelected = false; // deselects die 
 	}
 
-	public void useRoll(int[] nums, bool atEnemy){ // actually applying effects of used dies
-		// do this function once we decide on what does what
+	public void useRoll(int[] nums, bool atEnemy){ // calls the apply effect/heal effect for each effect
 		GD.Print("use: ");
-		for(int i = 0; i < nums.Length; i++){
+		int boost = nums.Length;
+		bool healing = false;
+		bool extraDmg = false;
+		bool extraEffects = false;
+		for(int i = 0; i < nums.Length; i++){ // checking if healing or extra damage needs to be true
 			GD.Print(nums[i]);
+			// if(atEnemy){GD.Print("at enemy: "+ nums[i]+ " - "+ dieEffects[nums[i]-1]);}
+			// if(!atEnemy){GD.Print("at player: "+nums[i]+ " - "+ enemyDieEffects[nums[i]-1]);}
+			string effect;
+			if(atEnemy){
+				effect = dieEffects[nums[i]-1];
+			} else{
+				effect = enemyDieEffects[nums[i]-1];
+			}
+			if(effect == "healing"){
+				healing = true;
+			} else if(effect == "damage"){
+				extraDmg = false;
+			} else{
+				extraEffects = true;
+			}
+		}
+		for(int i=0;i<nums.Length;i++){ // doing the applying of effects
+			string effect;
+			if(atEnemy){
+				effect = dieEffects[nums[i]-1];
+			} else{
+				effect = enemyDieEffects[nums[i]-1];
+			}
+			if(effect=="poison"){ // poison moment
+
+				if(healing){
+					if(atEnemy){ 
+						healEffect(player.poison, player.poisonInfo);
+					} else{
+						healEffect(enemy.poison, enemy.poisonInfo);
+					}
+				} else{
+					if(atEnemy){
+						applyEffect(enemy.poison, enemy.poisonInfo, extraDmg, boost);
+					} else{
+						applyEffect(player.poison, player.poisonInfo, extraDmg, boost);
+					}
+				}
+			}
+			if(effect=="fire"){ // fire moment
+				if(healing){
+					if(atEnemy){
+						healEffect(player.fire, player.fireInfo);
+					} else{
+						healEffect(enemy.fire, enemy.fireInfo);
+					}
+				} else{
+					if(atEnemy){
+						applyEffect(enemy.fire, enemy.fireInfo, extraDmg, boost);
+					} else{
+						applyEffect(player.fire, player.fireInfo, extraDmg, boost);
+					}
+				}
+			}
+			if(effect=="ice"){ // ice moment
+				if(healing){
+					if(atEnemy){
+						healEffect(player.ice, player.iceInfo);
+					} else{
+						healEffect(enemy.ice, enemy.iceInfo);
+					}
+				} else{
+					if(atEnemy){
+						applyEffect(enemy.ice, enemy.iceInfo, extraDmg, boost);
+					} else{
+						applyEffect(player.ice, player.iceInfo, extraDmg, boost);
+					}
+				}
+			}
+			// if you want to add an effect, add it here (also edit functions so combos work)
+		}
+		if(healing&&extraDmg&&!extraEffects){
+			if(atEnemy){ // temp +30 value
+				if(player.maxHealth>player.health+30){ // making sure it wont go over max health
+					player.health = player.maxHealth;
+				} else{
+					player.health += 30;	
+				}
+			} else{
+				if(enemy.maxHealth>enemy.health+30){ // making sure it wont go over max health
+					enemy.health = enemy.maxHealth;
+				} else{
+					enemy.health += 30;	
+				}
+			}
+		}
+		else if(healing&&!extraEffects){
+			if(atEnemy){ // temp +15 value
+				if(player.maxHealth>player.health+15){ // making sure it wont go over max health
+					player.health = player.maxHealth;
+				} else{
+					player.health += 15;	
+				}
+			} else{
+				if(enemy.maxHealth>enemy.health+5){ // making sure it wont go over max health
+					enemy.health = enemy.maxHealth;
+				} else{
+					enemy.health += 15;	
+				}
+			}
+		}
+		else if(extraDmg&&!extraEffects){
+			if(atEnemy){ // temp +25 value
+				enemy.health -= 15;
+			} else{
+				player.health -=15;
+			}
 		}
 		GD.Print("good luck");
+	}
+
+	public void healEffect(bool effect, Vector2 effectInfo){ // removes an affect, given is the target's effect bool and info
+		effectInfo = new Vector2(0,0);
+		effect = false;
+	}
+
+	public void applyEffect(bool effect, Vector2 effectInfo, bool extraDmg, int boost){ // doing the applying of effects
+		if (effectInfo != new Vector2(0,0)){ // base value is temporary
+			if(effectInfo.X < 5*boost||(extraDmg&&effectInfo.X<5*boost+15)){
+				effectInfo.X = 5*boost;
+				if(extraDmg){
+					effectInfo.X += 15; // adding extra dmg if damage is also used (TEMP)
+				}
+			}
+			effectInfo.Y += 4*boost;
+		} else{
+			effectInfo = new Vector2(5, 4); // base starting value (TEMP)
+			effectInfo.X *= boost;
+			effectInfo.Y *= boost;
+			if(extraDmg){
+				effectInfo.X += 15; // adding extra dmg if damage is also used (TEMP)
+			}
+		}
+		effect = true;
 	}
 
 	public void unSelect(){ // unselects all hand items
 		for(int i = 0; i < handSize; i++){
 			handItems[i].selected = false;
+			handItems[i].updateSprite(1);
 		}
 		numSelected = 0;
 	}
