@@ -1,0 +1,74 @@
+[gd_scene load_steps=8 format=3 uid="uid://ep20oqh6sfcd"]
+
+[ext_resource type="Texture2D" uid="uid://idbawx6v84mf" path="res://DiceBuilding/Sprites/emptyFace.png" id="1_nhre5"]
+[ext_resource type="Texture2D" uid="uid://c8epcjc8j02l4" path="res://Sprites/Dice/attackIcon.png" id="2_gyig6"]
+[ext_resource type="Texture2D" uid="uid://cshih5fjpmv72" path="res://Sprites/Dice/burnIcon.png" id="3_votwl"]
+[ext_resource type="Texture2D" uid="uid://cehabql4on4cs" path="res://Sprites/Dice/freezeIcon.png" id="4_f3pj2"]
+[ext_resource type="Texture2D" uid="uid://c1in7gwqkclel" path="res://Sprites/Dice/healIcon.png" id="5_4a8kh"]
+[ext_resource type="Texture2D" uid="uid://c11g1hv5ia74x" path="res://Sprites/Dice/poisonIcon.png" id="6_eivky"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ewav5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_gyig6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_votwl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_f3pj2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_4a8kh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_eivky")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="slot0" type="Sprite2D" parent="."]
+position = Vector2(126, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="slot1" type="Sprite2D" parent="."]
+position = Vector2(378, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="slot2" type="Sprite2D" parent="."]
+position = Vector2(630, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="slot3" type="Sprite2D" parent="."]
+position = Vector2(882, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="slot4" type="Sprite2D" parent="."]
+position = Vector2(1134, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="slot5" type="Sprite2D" parent="."]
+position = Vector2(1386, 122)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_nhre5")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(119, 675)
+scale = Vector2(0.3, 0.3)
+sprite_frames = SubResource("SpriteFrames_ewav5")
