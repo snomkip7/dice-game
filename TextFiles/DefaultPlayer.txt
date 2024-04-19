@@ -1,0 +1,10 @@
+100
+damage
+healing
+poison
+ice
+fire
+damage
+
+4
+0

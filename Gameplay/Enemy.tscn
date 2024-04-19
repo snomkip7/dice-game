@@ -22,5 +22,17 @@ one_shot = true
 [node name="EffectTimer" type="Timer" parent="."]
 one_shot = true
 
+[node name="HealthBarBackground" type="Sprite2D" parent="."]
+modulate = Color(0.352941, 0.411765, 0.411765, 1)
+position = Vector2(235, 50)
+scale = Vector2(3.25781, 0.289063)
+texture = ExtResource("2_wvtlu")
+
+[node name="HealthBarForeground" type="Sprite2D" parent="."]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(235, 50)
+scale = Vector2(3.25781, 0.289063)
+texture = ExtResource("2_wvtlu")
+
 [connection signal="timeout" from="DecisionTimer" to="." method="rollOrPlay"]
 [connection signal="timeout" from="EffectTimer" to="." method="dmgCalculation"]

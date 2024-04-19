@@ -11,6 +11,8 @@ public partial class Enemy : Node2D
 	public int dieSides;
 	public int handSize;
 	public int decisionBuffer = 5; // maybe make changeable
+	public string type = "none";
+	public int reward = 1;
 
 	// effects:
 	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=time
@@ -29,18 +31,57 @@ public partial class Enemy : Node2D
 	public Timer effectTimer;
 	public bool canRoll = true;
 	public int roll = -1;
+	public Gameplay game;
+	public Vector2 healthBarStart = new Vector2(235, 50);
+	public Vector2 healthBarStretch = new Vector2(3.258f, 0.289f); // change to 1,1 when real sprite exists
+	public Sprite2D healthBar;
 
 	public override void _Ready()
 	{
+		game = GetParent<Gameplay>();
 		// set all those attributes based on text file, also add a sprite
 		// fill out enemyDieEffects in gameplay
+		loadInfoFromTxt();
 		heldRolls = new int[handSize];
 		for(int i = 0; i < handSize;i++){
 			heldRolls[i] = -1;
 		}
 		decisionTimer = GetNode<Timer>("DecisionTimer");
 		effectTimer = GetNode<Timer>("EffectTimer");
-		health = (float) maxHealth;
+		healthBar = GetNode<Sprite2D>("HealthBarForeground");
+	}
+
+	public void loadInfoFromTxt(){
+		FileAccess file = FileAccess.Open("user://EnemyPath.txt", FileAccess.ModeFlags.Read);
+		if(file==null){
+			GD.Print("cant find file path, default enemy time");
+			file = FileAccess.Open("res://TextFiles/Enemies/DefaultEnemy.txt", FileAccess.ModeFlags.Read);
+			if(file==null){
+				GD.Print("Bruh the backup is wrong");
+			}
+		} else{
+			string path = "res://TextFiles/" + file.GetLine()+".txt";
+			file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+			if(file==null){
+				GD.Print("bruh the path is wrong");
+			}
+		}
+		maxHealth = Convert.ToInt32(file.GetLine());
+		health = maxHealth;
+		game.enemyDieEffects[0] = file.GetLine();
+		game.enemyDieEffects[1] = file.GetLine();
+		game.enemyDieEffects[2] = file.GetLine();
+		game.enemyDieEffects[3] = file.GetLine();
+		game.enemyDieEffects[4] = file.GetLine();
+		game.enemyDieEffects[5] = file.GetLine();
+		game.enemyDieEffects[6] = file.GetLine(); // should be blank if nothing in that slot
+		type = file.GetLine();
+		reward = Convert.ToInt32(file.GetLine());
+		aiLevel = Convert.ToInt32(file.GetLine());
+		decisionTime = Convert.ToInt32(file.GetLine());
+		handSize = Convert.ToInt32(file.GetLine());
+		// decisionBuffer = Convert.ToInt32(file.GetLine());
+		file.Close();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -50,7 +91,13 @@ public partial class Enemy : Node2D
 			int buffer = new RandomNumberGenerator().RandiRange(-decisionBuffer, decisionBuffer);
 			decisionTimer.Start(decisionTime+buffer);
 		}
-		
+		if(effectTimer.TimeLeft == 0){ // calls dmg calculations
+			effectTimer.Start(1);
+		}
+		// updating health bar
+		float healthPercent = health / maxHealth;
+		healthBar.Scale = new Vector2(healthBarStretch.X*healthPercent, healthBarStretch.Y);
+		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X * (healthBarStretch.X-healthBar.Scale.X))/2), healthBarStart.Y);
 	}
 
 	public void rollOrPlay(){ // called by decision timer
@@ -102,6 +149,8 @@ public partial class Enemy : Node2D
 	}
 
 	public void dmgCalculation(){
+		GD.Print("dmg calc");
+		float healthCheck = health;
 		// its if else tree time B)
 		if(poison&fire&ice){ // poison + fire + ice
 			GD.Print("yikes poison fire & ice");
@@ -150,6 +199,11 @@ public partial class Enemy : Node2D
 			// put some ui indicator stuff?
 			// now to decrease timers
 			iceInfo.Y -= 1;
+		} else{
+			GD.Print("should be no effects?");
+		}
+		if(healthCheck!=health){
+			GD.Print("Enemy health down to "+health+" from "+healthCheck);
 		}
 	}
 }

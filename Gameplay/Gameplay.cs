@@ -12,13 +12,12 @@ public partial class Gameplay : Node2D
 	public int handSize = 4; // will be changed with shop items probably
 	public int numSelected = 0; // num of selected handItems
 	public bool dieSelected = false;
-	public string[] dieEffects;
-	public string[] enemyDieEffects;
+	public string[] dieEffects = new string[7];
+	public string[] enemyDieEffects = new string[7];
 	
 	public override void _Ready()
 	{
 		handItems = new HandItem[handSize]; // setting things up
-		dieEffects = new string[handSize];
 		instanceHandItems();
 		enemy = GetNode<Enemy>("Enemy");
 		player = GetNode<Player>("Player");
@@ -129,10 +128,13 @@ public partial class Gameplay : Node2D
 			}
 			if(effect == "healing"){
 				healing = true;
+				GD.Print("Healin Time");
 			} else if(effect == "damage"){
-				extraDmg = false;
+				extraDmg = true;
+				GD.Print("DMG moment");
 			} else{
 				extraEffects = true;
+				GD.Print("Extra Effects");
 			}
 		}
 		for(int i=0;i<nums.Length;i++){ // doing the applying of effects
@@ -143,7 +145,7 @@ public partial class Gameplay : Node2D
 				effect = enemyDieEffects[nums[i]-1];
 			}
 			if(effect=="poison"){ // poison moment
-
+				GD.Print("poison");
 				if(healing){
 					if(atEnemy){ 
 						healEffect(player.poison, player.poisonInfo);
@@ -159,6 +161,7 @@ public partial class Gameplay : Node2D
 				}
 			}
 			if(effect=="fire"){ // fire moment
+				GD.Print("fire");
 				if(healing){
 					if(atEnemy){
 						healEffect(player.fire, player.fireInfo);
@@ -174,6 +177,7 @@ public partial class Gameplay : Node2D
 				}
 			}
 			if(effect=="ice"){ // ice moment
+				GD.Print("ice");
 				if(healing){
 					if(atEnemy){
 						healEffect(player.ice, player.iceInfo);
@@ -191,6 +195,7 @@ public partial class Gameplay : Node2D
 			// if you want to add an effect, add it here (also edit functions so combos work)
 		}
 		if(healing&&extraDmg&&!extraEffects){
+			GD.Print("Heal + extradmg");
 			if(atEnemy){ // temp +30 value
 				if(player.maxHealth>player.health+30){ // making sure it wont go over max health
 					player.health = player.maxHealth;
@@ -206,6 +211,7 @@ public partial class Gameplay : Node2D
 			}
 		}
 		else if(healing&&!extraEffects){
+			GD.Print("heal");
 			if(atEnemy){ // temp +15 value
 				if(player.maxHealth>player.health+15){ // making sure it wont go over max health
 					player.health = player.maxHealth;
@@ -221,8 +227,10 @@ public partial class Gameplay : Node2D
 			}
 		}
 		else if(extraDmg&&!extraEffects){
+			GD.Print("dmg");
 			if(atEnemy){ // temp +25 value
 				enemy.health -= 15;
+				GD.Print(enemy.health);
 			} else{
 				player.health -=15;
 			}

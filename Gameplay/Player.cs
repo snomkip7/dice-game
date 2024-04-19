@@ -21,15 +21,38 @@ public partial class Player : Node2D
 	// other stuff
 	public Gameplay game;
 	public Timer effectTimer;
+	public Vector2 healthBarStart = new Vector2(554, 606);
+	public Vector2 healthBarStretch = new Vector2(3.258f, 0.289f); // change to 1,1 when real sprite exists
+	public Sprite2D healthBar;
 
 	public override void _Ready()
 	{
 		game = GetParent<Gameplay>();
 		effectTimer = GetNode<Timer>("EffectTimer");
+		healthBar = GetNode<Sprite2D>("HealthBarForeground");
 		// read attributes from text files
+		loadInfoFromTxt();
 		// add a thing to make the die have the right amount of sides
 		// game.die.sides = sideNum
 		// fill out dieEffects in gameplay
+	}
+
+	public void loadInfoFromTxt(){
+		var file = FileAccess.Open("user://Player.txt", FileAccess.ModeFlags.Read);
+		if(file==null){
+			file = FileAccess.Open("res://TextFiles/DefaultPlayer.txt", FileAccess.ModeFlags.Read);
+		}
+		maxHealth = Convert.ToInt32(file.GetLine());
+		health = maxHealth;
+		game.dieEffects[0] = file.GetLine();
+		game.dieEffects[1] = file.GetLine();
+		game.dieEffects[2] = file.GetLine();
+		game.dieEffects[3] = file.GetLine();
+		game.dieEffects[4] = file.GetLine();
+		game.dieEffects[5] = file.GetLine();
+		game.dieEffects[6] = file.GetLine(); // should be blank if nothing in that slot
+		game.handSize = Convert.ToInt32(file.GetLine());
+		file.Close();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -38,6 +61,10 @@ public partial class Player : Node2D
 		if(effectTimer.TimeLeft == 0){ // starts poison effect if applied
 			effectTimer.Start(1);
 		}
+		// updating health bar
+		float healthPercent = health / maxHealth;
+		healthBar.Scale = new Vector2(healthBarStretch.X*healthPercent, healthBarStretch.Y);
+		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X * (healthBarStretch.X-healthBar.Scale.X))/2), healthBarStart.Y);
 	}
 
 	public void dmgCalculation(){

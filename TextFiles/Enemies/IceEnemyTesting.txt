@@ -1,0 +1,13 @@
+100
+damage
+ice
+healing
+poison
+ice
+ice
+
+ice
+50
+5
+15
+4
