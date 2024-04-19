@@ -8,15 +8,14 @@ public partial class Player : Node2D
 	public float health;
 
 	// effects:
-	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=time
+	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=times
 	public bool poison = false;
 	public Vector2 fireInfo = new Vector2(0,0); // first=dmg, second=time
 	public bool fire = false;
-	public Vector2 iceInfo = new Vector2(0,0); // first=dmg, second=time
+	public int iceInfo = 0; // time
 	public bool ice = false;
-	// public Vector2 timeSlow = new Vector2(0,0); // first=amount, second=time
-	// public Vector2 extraDice = new Vector2(0,0); // first=amount, second=time
-	// public Vector2 reroll = new Vector2(0,0); // first=amount, second=time
+	public Vector2 meltInfo = new Vector2(0,0); // first=dmg, second = time
+	public bool melt = false;
 
 	// other stuff
 	public Gameplay game;
@@ -68,54 +67,30 @@ public partial class Player : Node2D
 	}
 
 	public void dmgCalculation(){
-		// its if else tree time B)
-		if(poison&fire&ice){ // poison + fire + ice
-			GD.Print("yikes poison fire & ice");
-			health -= (poisonInfo.X+fireInfo.X+iceInfo.X)*3; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			fireInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(poison&fire){ // poison + fire
-			GD.Print("poison + fire = bad time");
-			health -= (poisonInfo.X+fireInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			fireInfo.Y -= 1;
-		} else if(poison&ice){ // poison + ice
-			GD.Print("poisoned ice not great");
-			health -= (poisonInfo.X+iceInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(fire&ice){ // fire + ice
-			GD.Print("bros meltin with fire & ice");
-			health -= (fireInfo.X+iceInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			fireInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(poison){ // poison
-			GD.Print("that tasted funny...");
-			health -= poisonInfo.X; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-		} else if(fire){ // fire
+		if(fire){ // fire
 			GD.Print("ah, thats hot");
-			health -= fireInfo.X; // temporary, need an actual effect
+			health -= fireInfo.X;
 			// put some ui indicator stuff?
 			// now to decrease timers
 			fireInfo.Y -= 1;
-		} else if(ice){ // ice
+			if(fireInfo.Y==0){
+				fire = false;
+			}
+		}
+		if(ice){ // ice
 			GD.Print("antartica moment");
-			health -= iceInfo.X; // temporary, need an actual effect
-			// put some ui indicator stuff?
 			// now to decrease timers
-			iceInfo.Y -= 1;
+			iceInfo -= 1;
+			if(iceInfo==0){
+				ice = false;
+			}
+		}
+		if(melt){
+			GD.Print("bros meltin under the pressure");
+			meltInfo.Y -= 1;
+			if(meltInfo.Y==0){
+				melt = false;
+			}
 		}
 	}
 }

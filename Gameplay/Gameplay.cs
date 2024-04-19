@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System;
 
 public partial class Gameplay : Node2D
@@ -14,6 +15,7 @@ public partial class Gameplay : Node2D
 	public bool dieSelected = false;
 	public string[] dieEffects = new string[7];
 	public string[] enemyDieEffects = new string[7];
+	public Dictionary<string, string> spellbook = new Dictionary<string, string>();
 	
 	public override void _Ready()
 	{
@@ -21,8 +23,25 @@ public partial class Gameplay : Node2D
 		instanceHandItems();
 		enemy = GetNode<Enemy>("Enemy");
 		player = GetNode<Player>("Player");
+		// setup spellbook
+		loadSpellbook();
 	}
 
+	public void loadSpellbook(){
+		var file = FileAccess.Open("user://Spellbook.txt", FileAccess.ModeFlags.Read);
+		if(file==null){
+			file = FileAccess.Open("res://TextFiles/Spellbook.txt", FileAccess.ModeFlags.Read);
+		}
+		string content = file.GetAsText();
+		var json = new Json();
+		var parsed = json.Parse(content);
+        if (parsed != Error.Ok)
+        {
+            GD.Print($"JSON Parse Error: {json.GetErrorMessage()} in {content} at line {json.GetErrorLine()}");
+        }
+		spellbook = new Dictionary<string, string>((Dictionary) json.Data);
+		file.Close();
+	}
 	
 	public override void _Process(double delta)
 	{
@@ -80,7 +99,12 @@ public partial class Gameplay : Node2D
 			}
 		}
 
-		useRoll(rolls, true);
+		if(player.poison){
+			player.health -= player.poisonInfo.X;
+			player.poisonInfo.Y -= 1;
+		}
+
+		rollEffects(rolls, true);
 		if(dieSelected){ // resetting die if needed
 			die.reset();
 			dieSelected = false;
@@ -110,158 +134,176 @@ public partial class Gameplay : Node2D
 		dieSelected = false; // deselects die 
 	}
 
-	public void useRoll(int[] nums, bool atEnemy){ // calls the apply effect/heal effect for each effect
-		GD.Print("use: ");
-		int boost = nums.Length;
+	public void rollEffects(int[] nums, bool atEnemy){ // applies effects of rolls & does combos and stuff
+		string[] effects = new string[nums.Length];
 		bool healing = false;
-		bool extraDmg = false;
-		bool extraEffects = false;
-		for(int i = 0; i < nums.Length; i++){ // checking if healing or extra damage needs to be true
-			GD.Print(nums[i]);
-			// if(atEnemy){GD.Print("at enemy: "+ nums[i]+ " - "+ dieEffects[nums[i]-1]);}
-			// if(!atEnemy){GD.Print("at player: "+nums[i]+ " - "+ enemyDieEffects[nums[i]-1]);}
-			string effect;
+		bool damage = false;
+		bool poison = false;
+		bool fire = false;
+		bool ice = false;
+		for(int i=0;i<nums.Length;i++){ // setting bools based on used faces
 			if(atEnemy){
-				effect = dieEffects[nums[i]-1];
+				effects[i] = dieEffects[nums[i]-1];
 			} else{
-				effect = enemyDieEffects[nums[i]-1];
+				effects[i] = enemyDieEffects[nums[i]-1];
 			}
-			if(effect == "healing"){
-				healing = true;
-				GD.Print("Healin Time");
-			} else if(effect == "damage"){
-				extraDmg = true;
-				GD.Print("DMG moment");
-			} else{
-				extraEffects = true;
-				GD.Print("Extra Effects");
+			if(effects[i]=="healing"){healing=true;}
+			if(effects[i]=="damage"){damage=true;}
+			if(effects[i]=="poison"){poison=true;}
+			if(effects[i]=="fire"){fire=true;}
+			if(effects[i]=="ice"){ice=true;}
+		}
+		if (healing){ // all this for healing
+			if(poison&&spellbook["heal_psn"]=="unlocked"){ // heal + poison
+				if(atEnemy){
+					player.poison = false;
+				} else{
+					enemy.poison = false;
+				}
+				poison = false;
+			}
+			if(fire&&spellbook["heal_fire"]=="unlocked"){ // heal + fire
+				if(atEnemy){
+					player.fire = false;
+				} else{
+					enemy.fire = false;
+				}
+				fire = false;
+			}
+			if(ice&&spellbook["heal_ice"]=="unlocked"){ // heal + ice
+				if(atEnemy){
+					player.ice = false;
+				} else{
+					enemy.ice = false;
+				}
+				ice = false;
+			}
+			if(damage&&spellbook["heal_dmg"]=="unlocked"&&!poison&&!fire&&!ice){ // heal + damage + no extra effects
+				if(atEnemy){
+					player.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+				} else{
+					enemy.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+				}
+				damage = false;
+			} else if(damage&&spellbook["heal_dmg_effect"]=="unlocked"){ // heal + damage + extra effects
+				if(atEnemy){
+					player.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+				} else{
+					enemy.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+				}
+				damage = false;
+			}
+			if(!damage&&!poison&&!fire&&!ice){ // regular healing
+				if(atEnemy){
+					player.health += getCount(effects, "healing") * 15;
+					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+				} else{
+					enemy.health += getCount(effects, "healing") * 15;
+					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+				}
 			}
 		}
-		for(int i=0;i<nums.Length;i++){ // doing the applying of effects
-			string effect;
+		 // effects without healing
+		if(fire&&ice&&spellbook["fire_ice"]=="unlocked"){ // melt
 			if(atEnemy){
-				effect = dieEffects[nums[i]-1];
+				enemy.fireInfo = new Vector2(5+getCount(effects, "fire")*5, getCount(effects, "ice") * 5);
+				enemy.fire = true;
 			} else{
-				effect = enemyDieEffects[nums[i]-1];
+				player.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
+				player.fire = true;
 			}
-			if(effect=="poison"){ // poison moment
-				GD.Print("poison");
-				if(healing){
-					if(atEnemy){ 
-						healEffect(player.poison, player.poisonInfo);
-					} else{
-						healEffect(enemy.poison, enemy.poisonInfo);
-					}
-				} else{
-					if(atEnemy){
-						applyEffect(enemy.poison, enemy.poisonInfo, extraDmg, boost);
-					} else{
-						applyEffect(player.poison, player.poisonInfo, extraDmg, boost);
-					}
-				}
-			}
-			if(effect=="fire"){ // fire moment
-				GD.Print("fire");
-				if(healing){
-					if(atEnemy){
-						healEffect(player.fire, player.fireInfo);
-					} else{
-						healEffect(enemy.fire, enemy.fireInfo);
-					}
-				} else{
-					if(atEnemy){
-						applyEffect(enemy.fire, enemy.fireInfo, extraDmg, boost);
-					} else{
-						applyEffect(player.fire, player.fireInfo, extraDmg, boost);
-					}
-				}
-			}
-			if(effect=="ice"){ // ice moment
-				GD.Print("ice");
-				if(healing){
-					if(atEnemy){
-						healEffect(player.ice, player.iceInfo);
-					} else{
-						healEffect(enemy.ice, enemy.iceInfo);
-					}
-				} else{
-					if(atEnemy){
-						applyEffect(enemy.ice, enemy.iceInfo, extraDmg, boost);
-					} else{
-						applyEffect(player.ice, player.iceInfo, extraDmg, boost);
-					}
-				}
-			}
-			// if you want to add an effect, add it here (also edit functions so combos work)
-		}
-		if(healing&&extraDmg&&!extraEffects){
-			GD.Print("Heal + extradmg");
-			if(atEnemy){ // temp +30 value
-				if(player.maxHealth>player.health+30){ // making sure it wont go over max health
-					player.health = player.maxHealth;
-				} else{
-					player.health += 30;	
-				}
+			fire = false;
+			ice = false;
+		} 
+		else if(poison&&fire&&spellbook["psn_fire"]=="unlocked"){ // poison fire
+			// poison fire implemenation
+			fire = false;
+			poison = false;
+		} 
+		else if(damage&&poison&&spellbook["dmg_psn"]=="unlocked"){ // damage poison
+			if(atEnemy){
+				enemy.poisonInfo = new Vector2(15+getCount(effects, "damage")*3, getCount(effects, "poison") * 2);
+				enemy.poison = true;
 			} else{
-				if(enemy.maxHealth>enemy.health+30){ // making sure it wont go over max health
-					enemy.health = enemy.maxHealth;
-				} else{
-					enemy.health += 30;	
-				}
+				player.poisonInfo = new Vector2(15+getCount(effects, "damage")*3, getCount(effects, "poison") * 2);
+				player.poison = true;
+			}
+			poison = false;
+			damage = false;
+		} 
+		else if(damage&&fire&&spellbook["dmg_fire"]=="unlocked"){ // damage fire
+			if(atEnemy){
+				enemy.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
+				enemy.fire = true;
+			} else{
+				player.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
+				player.fire = true;
+			}
+			fire = false;
+			damage = false;
+		} 
+		else if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice
+			if(atEnemy){
+				enemy.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
+				enemy.ice = true;
+			} else{
+				player.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
+				player.ice = true;
+			}
+			ice = false;
+			damage = false;
+		} 
+		// applying effects not used
+		if(poison){ // pure poison
+			if(atEnemy){
+				enemy.poisonInfo = new Vector2(15, getCount(effects, "poison") * 5);
+				enemy.poison = true;
+			} else{
+				player.poisonInfo = new Vector2(15, getCount(effects, "poison") * 5);
+				player.poison = true;
 			}
 		}
-		else if(healing&&!extraEffects){
-			GD.Print("heal");
-			if(atEnemy){ // temp +15 value
-				if(player.maxHealth>player.health+15){ // making sure it wont go over max health
-					player.health = player.maxHealth;
-				} else{
-					player.health += 15;	
-				}
+		if(fire){ // pure fire
+			if(atEnemy){
+				enemy.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
+				enemy.fire = true;
 			} else{
-				if(enemy.maxHealth>enemy.health+5){ // making sure it wont go over max health
-					enemy.health = enemy.maxHealth;
-				} else{
-					enemy.health += 15;	
-				}
+				player.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
+				player.fire = true;
 			}
 		}
-		else if(extraDmg&&!extraEffects){
-			GD.Print("dmg");
-			if(atEnemy){ // temp +25 value
-				enemy.health -= 15;
-				GD.Print(enemy.health);
+		if(ice){ // pure ice
+			if(atEnemy){
+				enemy.iceInfo = getCount(effects, "ice")*10;
+				enemy.ice = true;
 			} else{
-				player.health -=15;
+				player.iceInfo = getCount(effects, "ice")*10;
+				player.ice = true;
 			}
 		}
-		GD.Print("good luck");
+		if(damage){ // pure dmg
+			if(atEnemy){
+				enemy.health -= getCount(effects, "damage")*10;
+			} else{
+				player.health -= getCount(effects, "damage")*10;
+			}
+		}
 	}
 
-	public void healEffect(bool effect, Vector2 effectInfo){ // removes an affect, given is the target's effect bool and info
-		effectInfo = new Vector2(0,0);
-		effect = false;
-	}
-
-	public void applyEffect(bool effect, Vector2 effectInfo, bool extraDmg, int boost){ // doing the applying of effects
-		if (effectInfo != new Vector2(0,0)){ // base value is temporary
-			if(effectInfo.X < 5*boost||(extraDmg&&effectInfo.X<5*boost+15)){
-				effectInfo.X = 5*boost;
-				if(extraDmg){
-					effectInfo.X += 15; // adding extra dmg if damage is also used (TEMP)
-				}
-			}
-			effectInfo.Y += 4*boost;
-		} else{
-			effectInfo = new Vector2(5, 4); // base starting value (TEMP)
-			effectInfo.X *= boost;
-			effectInfo.Y *= boost;
-			if(extraDmg){
-				effectInfo.X += 15; // adding extra dmg if damage is also used (TEMP)
+	public int getCount(string[] effects, string effect){ // returns the amount of times effect appears in effects
+		int count = 0;
+		for(int i=0;i<effects.Length;i++){
+			if(effects[i]==effect){
+				count++;
 			}
 		}
-		effect = true;
+		return count;
 	}
+
 
 	public void unSelect(){ // unselects all hand items
 		for(int i = 0; i < handSize; i++){

@@ -15,15 +15,14 @@ public partial class Enemy : Node2D
 	public int reward = 1;
 
 	// effects:
-	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=time
+	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=times
 	public bool poison = false;
 	public Vector2 fireInfo = new Vector2(0,0); // first=dmg, second=time
 	public bool fire = false;
-	public Vector2 iceInfo = new Vector2(0,0); // first=dmg, second=time
+	public int iceInfo = 0; // time
 	public bool ice = false;
-	// public Vector2 timeSlow = new Vector2(0,0); // first=amount, second=time
-	// public Vector2 extraDice = new Vector2(0,0); // first=amount, second=time
-	// public Vector2 reroll = new Vector2(0,0); // first=amount, second=time
+	public Vector2 meltInfo = new Vector2(0,0); // first=dmg, second = time
+	public bool melt = false;
 
 	// other stuff
 	public int[] heldRolls; // -1 if empty
@@ -110,6 +109,10 @@ public partial class Enemy : Node2D
 	}
 
 	public void enemyRollDice(){ // decided when/where to call this function
+		if(poison){
+			health -= (int) (poisonInfo.X/3);
+			poisonInfo.Y -= 1;
+		}
 		roll = new RandomNumberGenerator().RandiRange(1, dieSides);
 		// play an animation
 		//updateDieSprite(roll)
@@ -117,12 +120,13 @@ public partial class Enemy : Node2D
 	}
 
 	public void makeDecision(){ // called ~every decisionTime seconds ***subject to change, feel free to change***
+		// dont forget to do poison implemenation
 		int decision = new RandomNumberGenerator().RandiRange(0,30); // max base decision is 30
 		decision += aiLevel; // adjusting for smort enemies
 		if(decision<25){ // dumbest move - play immediately
 			int[] rolls = new int[1];
 			rolls[0] = roll;
-			GetParent<Gameplay>().useRoll(rolls, false);
+			GetParent<Gameplay>().rollEffects(rolls, false);
 		} else{ // smart move - hold roll for combo
 			bool held = false; // try to hold the die
 			for(int i = 0; i < handSize && held==false; i++){
@@ -145,65 +149,35 @@ public partial class Enemy : Node2D
 	}
 
 	public void playCombo(){ // plays a combo based on held rolls & current roll ***needs to be done***
+		// dont forget poison implementation
 		// to be done
 	}
 
 	public void dmgCalculation(){
-		GD.Print("dmg calc");
-		float healthCheck = health;
-		// its if else tree time B)
-		if(poison&fire&ice){ // poison + fire + ice
-			GD.Print("yikes poison fire & ice");
-			health -= (poisonInfo.X+fireInfo.X+iceInfo.X)*3; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			fireInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(poison&fire){ // poison + fire
-			GD.Print("poison + fire = bad time");
-			health -= (poisonInfo.X+fireInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			fireInfo.Y -= 1;
-		} else if(poison&ice){ // poison + ice
-			GD.Print("poisoned ice not great");
-			health -= (poisonInfo.X+iceInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(fire&ice){ // fire + ice
-			GD.Print("bros meltin with fire & ice");
-			health -= (fireInfo.X+iceInfo.X)*2; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			fireInfo.Y -= 1;
-			iceInfo.Y -= 1;
-		} else if(poison){ // poison
-			GD.Print("that tasted funny...");
-			health -= poisonInfo.X; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			poisonInfo.Y -= 1;
-		} else if(fire){ // fire
+		if(fire){ // fire
 			GD.Print("ah, thats hot");
-			health -= fireInfo.X; // temporary, need an actual effect
+			health -= fireInfo.X;
 			// put some ui indicator stuff?
 			// now to decrease timers
 			fireInfo.Y -= 1;
-		} else if(ice){ // ice
-			GD.Print("antartica moment");
-			health -= iceInfo.X; // temporary, need an actual effect
-			// put some ui indicator stuff?
-			// now to decrease timers
-			iceInfo.Y -= 1;
-		} else{
-			GD.Print("should be no effects?");
+			if(fireInfo.Y==0){
+				fire = false;
+			}
 		}
-		if(healthCheck!=health){
-			GD.Print("Enemy health down to "+health+" from "+healthCheck);
+		if(ice){ // ice
+			GD.Print("antartica moment");
+			// now to decrease timers
+			iceInfo -= 1;
+			if(iceInfo==0){
+				ice = false;
+			}
+		}
+		if(melt){
+			GD.Print("bros meltin under the pressure");
+			meltInfo.Y -= 1;
+			if(meltInfo.Y==0){
+				melt = false;
+			}
 		}
 	}
 }

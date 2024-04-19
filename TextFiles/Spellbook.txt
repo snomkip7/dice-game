@@ -1,0 +1,12 @@
+{
+	"heal_psn": "locked",
+	"heal_fire": "locked",
+	"heal_ice": "locked",
+	"heal_dmg": "locked",
+	"heal_dmg_effect": "locked",
+	"fire_ice": "locked",
+	"psn_fire": "locked",
+	"dmg_psn": "locked",
+	"dmg_fire": "unlocked",
+	"dmg_ice": "locked",
+}

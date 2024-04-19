@@ -5,14 +5,16 @@ public partial class Die : Area2D
 {
 	public bool canRoll = true;
 	public int nextRoll = -1;
-	public int sides = 4;
+	public int sides = 6;
 	public Gameplay gameplay;
 	public float opacity = 1;
+	public Player player;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		gameplay = GetParent<Gameplay>();
+		player = GetNode<Player>("Player");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -41,10 +43,14 @@ public partial class Die : Area2D
 	}
 
 	public void roll(){ // starts the rolling animation (when there is an animation)
+		if(player.poison){ // poison dmg if needed
+			player.health-= (int) (player.poisonInfo.X/3);
+			player.poisonInfo.Y -= 1;
+		}
 		canRoll = false;
-		GetNode<Timer>("RollTimer").Start();
+		GetNode<Timer>("RollTimer").Start(); // replace timer with animation, with an if/else for slow animation if ice
 		GD.Print("do be rollin");
-		opacity = 0.8f;
+		opacity = 0.8f; // for dice sprite and selection, remove once selection ui exists
 	}
 
 	public void reset(){ // resets the die to a base value
