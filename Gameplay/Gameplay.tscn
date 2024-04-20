@@ -38,5 +38,30 @@ offset_right = 527.0
 offset_bottom = 557.0
 text = "add roll to hand"
 
+[node name="GameEndButton" type="Button" parent="."]
+visible = false
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1152.0
+offset_bottom = 648.0
+flat = true
+
+[node name="LoseBanner" type="Sprite2D" parent="GameEndButton"]
+visible = false
+modulate = Color(1, 0, 0, 1)
+z_index = 2
+position = Vector2(575, 333)
+scale = Vector2(9, 3.237)
+texture = ExtResource("1_8bsum")
+
+[node name="WinBanner" type="Sprite2D" parent="GameEndButton"]
+visible = false
+modulate = Color(0, 1, 0, 1)
+z_index = 2
+position = Vector2(575, 333)
+scale = Vector2(9, 3.237)
+texture = ExtResource("1_8bsum")
+
 [connection signal="pressed" from="PlayButton" to="." method="playRoll"]
 [connection signal="pressed" from="HoldRollButton" to="." method="holdRoll"]
+[connection signal="pressed" from="GameEndButton" to="." method="gameEnd"]

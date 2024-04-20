@@ -14,7 +14,7 @@ public partial class Die : Area2D
 	public override void _Ready()
 	{
 		gameplay = GetParent<Gameplay>();
-		player = GetNode<Player>("Player");
+		player = gameplay.GetNode<Player>("Player");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

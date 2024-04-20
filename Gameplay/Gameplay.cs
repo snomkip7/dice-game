@@ -16,6 +16,7 @@ public partial class Gameplay : Node2D
 	public string[] dieEffects = new string[7];
 	public string[] enemyDieEffects = new string[7];
 	public Dictionary<string, string> spellbook = new Dictionary<string, string>();
+	public bool gameEnded;
 	
 	public override void _Ready()
 	{
@@ -27,7 +28,7 @@ public partial class Gameplay : Node2D
 		loadSpellbook();
 	}
 
-	public void loadSpellbook(){
+	public void loadSpellbook(){ // gets spellbook from txt, will be removed when globalVars has the spellbook
 		var file = FileAccess.Open("user://Spellbook.txt", FileAccess.ModeFlags.Read);
 		if(file==null){
 			file = FileAccess.Open("res://TextFiles/Spellbook.txt", FileAccess.ModeFlags.Read);
@@ -45,6 +46,23 @@ public partial class Gameplay : Node2D
 	
 	public override void _Process(double delta)
 	{
+		if(enemy.health<=0&&!gameEnded){ // checking if player wins
+			GD.Print("PLAYER WON");
+			// globalVars.playerCoins += globalVars.enemyCoinValue
+			// ui win banner??
+			enemy.healthBar.Visible = false;
+			GetNode<Button>("GameEndButton").Visible = true;
+			GetNode<Button>("GameEndButton").GetNode<Sprite2D>("WinBanner").Visible = true;
+			gameEnded = true;
+		} else if(player.health<=0&&!gameEnded){ // checking if enemy wins
+			GD.Print("YOU LOST, GET GOOD WHEN");
+			// L BOZO 
+			// ui lose banner?
+			player.healthBar.Visible = false;
+			GetNode<Button>("GameEndButton").Visible = true;
+			GetNode<Button>("GameEndButton").GetNode<Sprite2D>("LoseBanner").Visible = true;
+			gameEnded = true;
+		}
 	}
 
 	public void instanceHandItems(){ // create hand, with formatting
@@ -99,12 +117,12 @@ public partial class Gameplay : Node2D
 			}
 		}
 
-		if(player.poison){
+		if(player.poison){ // poison dmg if needed
 			player.health -= player.poisonInfo.X;
 			player.poisonInfo.Y -= 1;
 		}
 
-		rollEffects(rolls, true);
+		rollEffects(rolls, true); // calling the function that does the actual effects
 		if(dieSelected){ // resetting die if needed
 			die.reset();
 			dieSelected = false;
@@ -219,12 +237,12 @@ public partial class Gameplay : Node2D
 			fire = false;
 			ice = false;
 		} 
-		else if(poison&&fire&&spellbook["psn_fire"]=="unlocked"){ // poison fire
-			// poison fire implemenation
+		if(poison&&fire&&spellbook["psn_fire"]=="unlocked"){ // poison fire
+			// poison fire implemenation (gotta think of smth)
 			fire = false;
 			poison = false;
 		} 
-		else if(damage&&poison&&spellbook["dmg_psn"]=="unlocked"){ // damage poison
+		if(damage&&poison&&spellbook["dmg_psn"]=="unlocked"){ // damage poison
 			if(atEnemy){
 				enemy.poisonInfo = new Vector2(15+getCount(effects, "damage")*3, getCount(effects, "poison") * 2);
 				enemy.poison = true;
@@ -235,7 +253,7 @@ public partial class Gameplay : Node2D
 			poison = false;
 			damage = false;
 		} 
-		else if(damage&&fire&&spellbook["dmg_fire"]=="unlocked"){ // damage fire
+		if(damage&&fire&&spellbook["dmg_fire"]=="unlocked"){ // damage fire
 			if(atEnemy){
 				enemy.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
 				enemy.fire = true;
@@ -246,7 +264,7 @@ public partial class Gameplay : Node2D
 			fire = false;
 			damage = false;
 		} 
-		else if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice
+		if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice
 			if(atEnemy){
 				enemy.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
 				enemy.ice = true;
@@ -256,7 +274,7 @@ public partial class Gameplay : Node2D
 			}
 			ice = false;
 			damage = false;
-		} 
+		}
 		// applying effects not used
 		if(poison){ // pure poison
 			if(atEnemy){
@@ -311,5 +329,9 @@ public partial class Gameplay : Node2D
 			handItems[i].updateSprite(1);
 		}
 		numSelected = 0;
+	}
+
+	public void gameEnd(){
+		GetTree().ChangeSceneToFile("res://MainMenu.tscn");
 	}
 }
