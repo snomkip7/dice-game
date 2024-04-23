@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://dw4b0enjdk2tj"]
+
+[ext_resource type="Texture2D" uid="uid://idbawx6v84mf" path="res://DiceBuilding/Sprites/emptyFace.png" id="1_auoy5"]
+[ext_resource type="Script" path="res://DiceBuilding/DieSlot.cs" id="1_xjcfw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uswg5"]
+size = Vector2(206, 206)
+
+[node name="Area2D" type="Area2D"]
+script = ExtResource("1_xjcfw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_uswg5")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_auoy5")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
