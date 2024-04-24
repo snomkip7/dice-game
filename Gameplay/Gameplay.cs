@@ -66,9 +66,9 @@ public partial class Gameplay : Node2D
 	}
 
 	public void instanceHandItems(){ // create hand, with formatting
-		Vector2 firstHandPosition = new Vector2(81, 369); // can be changed, formatting starts with this as top left
-		int downBy = 100; // downwards space between handItems
-		int rightBy = 100; // right space between handItems
+		Vector2 firstHandPosition = new Vector2(88, 739); // can be changed, formatting starts with this as top left
+		int downBy = 130; // downwards space between handItems
+		int rightBy = 130; // right space between handItems
 
 		for(int i = 0; i < handSize; i++){
 			int down = 0; // counting reasons
@@ -124,8 +124,8 @@ public partial class Gameplay : Node2D
 
 		rollEffects(rolls, true); // calling the function that does the actual effects
 		if(dieSelected){ // resetting die if needed
-			die.reset();
 			dieSelected = false;
+			die.reset();
 		}
 	}
 
@@ -144,6 +144,7 @@ public partial class Gameplay : Node2D
 		}
 		if(held){ // resetting die & removing hold button if is sucessfully held
 			GetNode<Button>("HoldRollButton").Visible = false;
+			dieSelected = false;
 			die.reset();
 		} else{ // if is unable to hold
 			// do smth man - figure out what to do pls
@@ -264,7 +265,7 @@ public partial class Gameplay : Node2D
 			fire = false;
 			damage = false;
 		} 
-		if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice
+		if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice (just extends length cuz idk)
 			if(atEnemy){
 				enemy.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
 				enemy.ice = true;
@@ -326,7 +327,7 @@ public partial class Gameplay : Node2D
 	public void unSelect(){ // unselects all hand items
 		for(int i = 0; i < handSize; i++){
 			handItems[i].selected = false;
-			handItems[i].updateSprite(1);
+			handItems[i].updateSprite();
 		}
 		numSelected = 0;
 	}

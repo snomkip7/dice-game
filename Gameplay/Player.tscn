@@ -11,14 +11,14 @@ one_shot = true
 
 [node name="HealthBarBackground" type="Sprite2D" parent="."]
 modulate = Color(0.352941, 0.411765, 0.411765, 1)
-position = Vector2(554, 606)
-scale = Vector2(3.25781, 0.289063)
+position = Vector2(949.5, 960.004)
+scale = Vector2(6.16406, 0.546932)
 texture = ExtResource("2_ubl02")
 
 [node name="HealthBarForeground" type="Sprite2D" parent="."]
 modulate = Color(1, 0, 0, 1)
-position = Vector2(554, 606)
-scale = Vector2(3.25781, 0.289063)
+position = Vector2(949.5, 960.004)
+scale = Vector2(6.16406, 0.546933)
 texture = ExtResource("2_ubl02")
 
 [connection signal="timeout" from="EffectTimer" to="." method="dmgCalculation"]

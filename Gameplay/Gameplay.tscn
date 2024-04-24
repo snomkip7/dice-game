@@ -12,8 +12,8 @@ script = ExtResource("1_smwj2")
 handItem = ExtResource("2_y118l")
 
 [node name="HandBackground" type="Sprite2D" parent="."]
-position = Vector2(135.5, 471.5)
-scale = Vector2(2.10156, 2.74219)
+position = Vector2(155.25, 870.25)
+scale = Vector2(2.41797, 3.28516)
 texture = ExtResource("1_8bsum")
 
 [node name="Enemy" parent="." instance=ExtResource("5_lxyph")]
@@ -21,45 +21,48 @@ texture = ExtResource("1_8bsum")
 [node name="Player" parent="." instance=ExtResource("5_on0ec")]
 
 [node name="Die" parent="." instance=ExtResource("4_b6pja")]
-position = Vector2(623, 457)
+position = Vector2(869, 692)
 
 [node name="PlayButton" type="Button" parent="."]
-offset_left = 807.0
-offset_top = 462.0
-offset_right = 979.0
-offset_bottom = 609.0
+offset_left = 1410.0
+offset_top = 631.0
+offset_right = 1860.0
+offset_bottom = 981.0
+theme_override_font_sizes/font_size = 50
 text = "play roll"
+metadata/_edit_use_anchors_ = true
 
 [node name="HoldRollButton" type="Button" parent="."]
 visible = false
-offset_left = 355.0
-offset_top = 410.0
-offset_right = 527.0
-offset_bottom = 557.0
+offset_left = 331.0
+offset_top = 581.0
+offset_right = 633.0
+offset_bottom = 839.0
+theme_override_font_sizes/font_size = 30
 text = "add roll to hand"
 
 [node name="GameEndButton" type="Button" parent="."]
 visible = false
 offset_left = 1.0
 offset_top = 1.0
-offset_right = 1152.0
-offset_bottom = 648.0
+offset_right = 1919.0
+offset_bottom = 1079.0
 flat = true
 
 [node name="LoseBanner" type="Sprite2D" parent="GameEndButton"]
 visible = false
 modulate = Color(1, 0, 0, 1)
 z_index = 2
-position = Vector2(575, 333)
-scale = Vector2(9, 3.237)
+position = Vector2(958, 470.752)
+scale = Vector2(14.9844, 5.38938)
 texture = ExtResource("1_8bsum")
 
 [node name="WinBanner" type="Sprite2D" parent="GameEndButton"]
 visible = false
 modulate = Color(0, 1, 0, 1)
 z_index = 2
-position = Vector2(575, 333)
-scale = Vector2(9, 3.237)
+position = Vector2(958, 470.752)
+scale = Vector2(14.9844, 5.38938)
 texture = ExtResource("1_8bsum")
 
 [connection signal="pressed" from="PlayButton" to="." method="playRoll"]

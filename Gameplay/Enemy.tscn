@@ -1,20 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://ejlhc4fuui1p"]
+[gd_scene load_steps=4 format=3 uid="uid://ejlhc4fuui1p"]
 
 [ext_resource type="Script" path="res://Gameplay/Enemy.cs" id="1_fh0ym"]
 [ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="2_wvtlu"]
+[ext_resource type="Texture2D" uid="uid://cbes5tgtnmo36" path="res://Sprites/Dice/tempDiceIcon.png" id="3_5tvm4"]
 
 [node name="Enemy" type="Node2D"]
 script = ExtResource("1_fh0ym")
 
 [node name="Enemy" type="Sprite2D" parent="."]
-position = Vector2(972, 128.5)
-scale = Vector2(2.8125, 1.96094)
+position = Vector2(1560, 251)
+scale = Vector2(5.626, 3.922)
 texture = ExtResource("2_wvtlu")
 
-[node name="EnemyDie" type="Sprite2D" parent="."]
-position = Vector2(532.5, 80.5)
-scale = Vector2(0.742188, 0.742188)
-texture = ExtResource("2_wvtlu")
+[node name="EnemyDieBg" type="Sprite2D" parent="."]
+position = Vector2(972, 218)
+scale = Vector2(0.390625, 0.390625)
+texture = ExtResource("3_5tvm4")
+
+[node name="EnemyDieFace" type="Sprite2D" parent="."]
+position = Vector2(972, 218)
+scale = Vector2(0.339844, 0.339844)
 
 [node name="DecisionTimer" type="Timer" parent="."]
 one_shot = true
@@ -24,14 +29,14 @@ one_shot = true
 
 [node name="HealthBarBackground" type="Sprite2D" parent="."]
 modulate = Color(0.352941, 0.411765, 0.411765, 1)
-position = Vector2(235, 50)
-scale = Vector2(3.25781, 0.289063)
+position = Vector2(393.5, 67.0109)
+scale = Vector2(5.46094, 0.484545)
 texture = ExtResource("2_wvtlu")
 
 [node name="HealthBarForeground" type="Sprite2D" parent="."]
 modulate = Color(1, 0, 0, 1)
-position = Vector2(235, 50)
-scale = Vector2(3.25781, 0.289063)
+position = Vector2(393.5, 67.0109)
+scale = Vector2(5.46094, 0.484545)
 texture = ExtResource("2_wvtlu")
 
 [connection signal="timeout" from="DecisionTimer" to="." method="rollOrPlay"]

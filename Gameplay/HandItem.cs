@@ -9,7 +9,7 @@ public partial class HandItem : Area2D
 
 	public override void _Ready()
 	{
-		updateSprite(1); // starting value
+		updateSprite(); // starting value
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -21,10 +21,10 @@ public partial class HandItem : Area2D
 		if(@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed == true && roll != -1){
 			selected = !selected; 
 			if(selected){ // changing stuff depending on if its selected or nah
-				updateSprite(.5f);
+				updateSprite();
 				GetParent<Gameplay>().numSelected += 1;
 			} else{
-				updateSprite(1);
+				updateSprite();
 				GetParent<Gameplay>().numSelected -= 1;
 			}
 			GD.Print(selected+" and all are "+GetParent<Gameplay>().numSelected);
@@ -34,7 +34,7 @@ public partial class HandItem : Area2D
 	public void updateItem(int roll){ // used when changing the value of the handItem
 		this.roll = roll;
 		full = true;
-		updateSprite(1);
+		updateSprite();
 		if(roll==-1){ // -1 is used to reset to default
 			selected = false;
 			full = false;
@@ -42,29 +42,38 @@ public partial class HandItem : Area2D
 		}
 	}
 
-	public void updateSprite(float opacity){ // update when sprites are made
-		switch(roll){
-			case -1:
-				Modulate = new Color(0.2f,0.2f,0.2f, opacity); // black
+	public void updateSprite(){ // updates the sprite to the correct icon
+		string effect = "none";
+		if(roll>=1&&roll<=6){
+			effect = GetParent<Gameplay>().dieEffects[roll-1];
+		}
+		
+		switch(effect){
+			case "none":
+				GetNode<Sprite2D>("HandSprite").Visible = false;
 				break;
-			case 1:
-				Modulate = new Color(.8f,.1f,.1f, opacity); // red
+			case "damage":
+				GetNode<Sprite2D>("HandSprite").Visible = true;
+				GetNode<Sprite2D>("HandSprite").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/attackIcon.png");
 				break;
-			case 2:
-				Modulate = new Color(.1f,.8f,.1f, opacity); // green
+			case "healing":
+				GetNode<Sprite2D>("HandSprite").Visible = true;
+				GetNode<Sprite2D>("HandSprite").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/healIcon.png");
 				break;
-			case 3:
-				Modulate = new Color(.1f,.1f,.8f, opacity); // blue
+			case "poison":
+				GetNode<Sprite2D>("HandSprite").Visible = true;
+				GetNode<Sprite2D>("HandSprite").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/poisonIcon.png");
 				break;
-			case 4:
-				Modulate = new Color(.8f,.8f,.1f, opacity); // yellow
+			case "fire":
+				GetNode<Sprite2D>("HandSprite").Visible = true;
+				GetNode<Sprite2D>("HandSprite").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/burnIcon.png");
 				break;
-			case 5:
-				Modulate = new Color(.1f,.8f,.8f, opacity); // aqua
-				break;
-			case 6:
-				Modulate = new Color(.8f,.1f,.8f, opacity); // purple
+			case "ice":
+				GetNode<Sprite2D>("HandSprite").Visible = true;
+				GetNode<Sprite2D>("HandSprite").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/freezeIcon.png");
 				break;
 		}
+		GetNode<Sprite2D>("SelectedSprite").Visible = selected;
 	}
+	
 }

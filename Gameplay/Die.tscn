@@ -1,20 +1,31 @@
-[gd_scene load_steps=4 format=3 uid="uid://dj0srqtgnwpi0"]
+[gd_scene load_steps=5 format=3 uid="uid://dj0srqtgnwpi0"]
 
 [ext_resource type="Script" path="res://Gameplay/Die.cs" id="1_71oj2"]
-[ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="1_cgi6w"]
+[ext_resource type="Texture2D" uid="uid://cbes5tgtnmo36" path="res://Sprites/Dice/tempDiceIcon.png" id="2_ghfss"]
+[ext_resource type="Texture2D" uid="uid://cb61ho0c0qu3v" path="res://Sprites/Dice/selectedIcon.png" id="3_1xxxg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ap5g1"]
-size = Vector2(128, 128)
+size = Vector2(246, 245)
 
 [node name="Die" type="Area2D"]
 script = ExtResource("1_71oj2")
 
 [node name="DieCollision" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_ap5g1")
+
+[node name="BackgroundSprite" type="Sprite2D" parent="."]
+scale = Vector2(0.484375, 0.484375)
+texture = ExtResource("2_ghfss")
 
 [node name="DieSprite" type="Sprite2D" parent="."]
 modulate = Color(0.607843, 0.8, 0.85098, 1)
-texture = ExtResource("1_cgi6w")
+scale = Vector2(0.414062, 0.414063)
+
+[node name="SelectedSprite" type="Sprite2D" parent="."]
+visible = false
+scale = Vector2(0.484375, 0.484375)
+texture = ExtResource("3_1xxxg")
 
 [node name="RollTimer" type="Timer" parent="."]
 wait_time = 1.5

@@ -20,8 +20,8 @@ public partial class Player : Node2D
 	// other stuff
 	public Gameplay game;
 	public Timer effectTimer;
-	public Vector2 healthBarStart = new Vector2(554, 606);
-	public Vector2 healthBarStretch = new Vector2(3.258f, 0.289f); // change to 1,1 when real sprite exists
+	public Vector2 healthBarStart = new Vector2(949.5f, 960.004f);
+	public Vector2 healthBarStretch = new Vector2(6.164f, 0.547f); // change to 1,1 when real sprite exists
 	public Sprite2D healthBar;
 
 	public override void _Ready()

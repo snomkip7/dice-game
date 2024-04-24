@@ -8,9 +8,9 @@ public partial class Enemy : Node2D
 	public float health;
 	public int aiLevel;
 	public int decisionTime; // in seconds
-	public int dieSides;
+	public int dieSides = 6;
 	public int handSize;
-	public int decisionBuffer = 5; // maybe make changeable
+	public int decisionBuffer = 3; // maybe make changeable
 	public string type = "none";
 	public int reward = 1;
 
@@ -31,8 +31,8 @@ public partial class Enemy : Node2D
 	public bool canRoll = true;
 	public int roll = -1;
 	public Gameplay game;
-	public Vector2 healthBarStart = new Vector2(235, 50);
-	public Vector2 healthBarStretch = new Vector2(3.258f, 0.289f); // change to 1,1 when real sprite exists
+	public Vector2 healthBarStart = new Vector2(393.5f, 67.011f);
+	public Vector2 healthBarStretch = new Vector2(5.461f, 0.485f); // change to 1,1 when real sprite exists
 	public Sprite2D healthBar;
 
 	public override void _Ready()
@@ -88,6 +88,9 @@ public partial class Enemy : Node2D
 	{
 		if(decisionTimer.TimeLeft == 0){ // starts decision time with a randomish time (with buffer)
 			int buffer = new RandomNumberGenerator().RandiRange(-decisionBuffer, decisionBuffer);
+			if(ice){
+				buffer += 5;
+			}
 			decisionTimer.Start(decisionTime+buffer);
 		}
 		if(effectTimer.TimeLeft == 0){ // calls dmg calculations
@@ -102,6 +105,7 @@ public partial class Enemy : Node2D
 	public void rollOrPlay(){ // called by decision timer
 		if(canRoll){ // if it can roll, then roll
 			enemyRollDice();
+			canRoll = false;
 		} else{ // else make a decision on whether to play or hold
 			makeDecision();
 			canRoll = true;
@@ -115,8 +119,13 @@ public partial class Enemy : Node2D
 		}
 		roll = new RandomNumberGenerator().RandiRange(1, dieSides);
 		// play an animation
-		//updateDieSprite(roll)
-		decisionTimer.Start(1.5); // change to when roll animation
+		updateDieSprite();
+		if(ice){
+			decisionTimer.Start(5); // change to when roll animation
+		} else{
+			decisionTimer.Start(1.5); // change to when roll animation
+		}
+		
 	}
 
 	public void makeDecision(){ // called ~every decisionTime seconds ***subject to change, feel free to change***
@@ -124,9 +133,14 @@ public partial class Enemy : Node2D
 		int decision = new RandomNumberGenerator().RandiRange(0,30); // max base decision is 30
 		decision += aiLevel; // adjusting for smort enemies
 		if(decision<25){ // dumbest move - play immediately
+			if(poison){
+				health -= (int) poisonInfo.X;
+				poisonInfo.Y -= 1;
+			}
 			int[] rolls = new int[1];
 			rolls[0] = roll;
 			GetParent<Gameplay>().rollEffects(rolls, false);
+			roll = -1;
 		} else{ // smart move - hold roll for combo
 			bool held = false; // try to hold the die
 			for(int i = 0; i < handSize && held==false; i++){
@@ -146,11 +160,20 @@ public partial class Enemy : Node2D
 				}
 			}
 		}
+		updateDieSprite();
 	}
 
 	public void playCombo(){ // plays a combo based on held rolls & current roll ***needs to be done***
 		// dont forget poison implementation
 		// to be done
+		if(poison){
+			health -= (int) poisonInfo.X;
+			poisonInfo.Y -= 1;
+		}
+		int[] rolls = new int[1]; // REMOVE THIS LOGIC, THIS IS TEMPORARY
+		rolls[0] = roll;
+		GetParent<Gameplay>().rollEffects(rolls, false);
+		roll = -1;
 	}
 
 	public void dmgCalculation(){
@@ -178,6 +201,39 @@ public partial class Enemy : Node2D
 			if(meltInfo.Y==0){
 				melt = false;
 			}
+		}
+	}
+
+	public void updateDieSprite(){ // updates the sprite to the correct icon
+		string effect = "none";
+		if(roll>=1&&roll<=6){
+			effect = GetParent<Gameplay>().enemyDieEffects[roll-1];
+		}
+		
+		switch(effect){
+			case "none":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = false;
+				break;
+			case "damage":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = true;
+				GetNode<Sprite2D>("EnemyDieFace").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/attackIcon.png");
+				break;
+			case "healing":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = true;
+				GetNode<Sprite2D>("EnemyDieFace").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/healIcon.png");
+				break;
+			case "poison":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = true;
+				GetNode<Sprite2D>("EnemyDieFace").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/poisonIcon.png");
+				break;
+			case "fire":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = true;
+				GetNode<Sprite2D>("EnemyDieFace").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/burnIcon.png");
+				break;
+			case "ice":
+				GetNode<Sprite2D>("EnemyDieFace").Visible = true;
+				GetNode<Sprite2D>("EnemyDieFace").Texture = (Texture2D) ResourceLoader.Load("res://Sprites/Dice/freezeIcon.png");
+				break;
 		}
 	}
 }
