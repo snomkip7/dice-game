@@ -16,4 +16,14 @@ shape = SubResource("RectangleShape2D_uswg5")
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("1_auoy5")
 
-[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[node name="Info" type="RichTextLabel" parent="."]
+offset_left = -147.0
+offset_top = 116.0
+offset_right = 145.0
+offset_bottom = 168.0
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+bbcode_enabled = true
+text = "bruh"
+
+[connection signal="area_entered" from="." to="." method="OnAreaEntered"]
+[connection signal="area_exited" from="." to="." method="OnAreaExited"]

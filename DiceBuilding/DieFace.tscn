@@ -1,7 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://dfg6qm282qxyc"]
+[gd_scene load_steps=13 format=3 uid="uid://dfg6qm282qxyc"]
 
 [ext_resource type="Script" path="res://DiceBuilding/DieFace.cs" id="1_84hoa"]
-[ext_resource type="Texture2D" uid="uid://cbes5tgtnmo36" path="res://Sprites/Dice/tempDiceIcon.png" id="2_fqhlm"]
+[ext_resource type="Texture2D" uid="uid://dimb58e8tos6" path="res://Sprites/Dice/tempDiceIcon.png" id="2_fqhlm"]
 [ext_resource type="Texture2D" uid="uid://c8epcjc8j02l4" path="res://Sprites/Dice/attackIcon.png" id="3_fsmhk"]
 [ext_resource type="Script" path="res://DiceBuilding/DieBG.cs" id="3_rj3t5"]
 [ext_resource type="Texture2D" uid="uid://bmu5rpa60iqdi" path="res://DiceBuilding/Sprites/diceDropShadow.png" id="4_7m17g"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cehabql4on4cs" path="res://Sprites/Dice/freezeIcon.png" id="5_tlv2w"]
 [ext_resource type="Texture2D" uid="uid://c1in7gwqkclel" path="res://Sprites/Dice/healIcon.png" id="6_p6p2q"]
 [ext_resource type="Texture2D" uid="uid://c11g1hv5ia74x" path="res://Sprites/Dice/poisonIcon.png" id="7_b0xm2"]
+[ext_resource type="Script" path="res://DiceBuilding/Faces.cs" id="9_islfu"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_6yktl"]
 animations = [{
@@ -17,16 +18,16 @@ animations = [{
 "texture": ExtResource("3_fsmhk")
 }, {
 "duration": 1.0,
-"texture": ExtResource("4_c2c0r")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_tlv2w")
-}, {
-"duration": 1.0,
 "texture": ExtResource("6_p6p2q")
 }, {
 "duration": 1.0,
 "texture": ExtResource("7_b0xm2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_c2c0r")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_tlv2w")
 }],
 "loop": false,
 "name": &"dieFaces",
@@ -37,12 +38,20 @@ animations = [{
 size = Vector2(512, 512)
 
 [node name="DieFace" type="Node2D"]
+position = Vector2(96, 96)
 scale = Vector2(0.4, 0.4)
 script = ExtResource("1_84hoa")
+face = "healing"
 
 [node name="DieBG" type="Sprite2D" parent="."]
 texture = ExtResource("2_fqhlm")
 script = ExtResource("3_rj3t5")
+
+[node name="Faces" type="AnimatedSprite2D" parent="DieBG"]
+scale = Vector2(0.8, 0.8)
+sprite_frames = SubResource("SpriteFrames_6yktl")
+animation = &"dieFaces"
+script = ExtResource("9_islfu")
 
 [node name="DieShadow" type="Sprite2D" parent="DieBG"]
 visible = false
@@ -51,15 +60,13 @@ self_modulate = Color(1, 1, 1, 0.737255)
 show_behind_parent = true
 texture = ExtResource("4_7m17g")
 
-[node name="Faces" type="AnimatedSprite2D" parent="DieBG"]
-scale = Vector2(0.8, 0.8)
-sprite_frames = SubResource("SpriteFrames_6yktl")
-animation = &"dieFaces"
-
 [node name="Area2D" type="Area2D" parent="."]
-visible = false
+scale = Vector2(1, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(2.08165e-12, 2.08165e-12)
+scale = Vector2(0.75, 0.75)
 shape = SubResource("RectangleShape2D_odv1l")
 
 [connection signal="liftUp" from="." to="DieBG" method="_on_die_face_lift_up"]
+[connection signal="area_entered" from="Area2D" to="." method="OnAreaEntered"]

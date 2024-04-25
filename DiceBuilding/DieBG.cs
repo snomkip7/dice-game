@@ -18,7 +18,7 @@ public partial class DieBG : Sprite2D
 
 	private void _on_die_face_lift_up(bool active){
 		if(active){
-			GD.Print("activeran");
+			//GD.Print("activeran");
 			this.Scale += new Vector2(0.2f,0.2f);
 			//GetNode<AnimatedSprite2D>("Faces").Scale += (new Vector2(0.2f, 0.2f) * scaleDiff);
 			GetNode<Sprite2D>("DieShadow").Visible = true;

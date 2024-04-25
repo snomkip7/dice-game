@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://ep20oqh6sfcd"]
+[gd_scene load_steps=5 format=3 uid="uid://ep20oqh6sfcd"]
 
 [ext_resource type="Texture2D" uid="uid://cc5adm1nf66fx" path="res://DiceBuilding/Sprites/woodBG.png" id="1_2kulo"]
+[ext_resource type="Script" path="res://DiceBuilding/dbManager.cs" id="1_auj5b"]
 [ext_resource type="PackedScene" uid="uid://dw4b0enjdk2tj" path="res://DiceBuilding/DieSlot.tscn" id="2_r0sfo"]
 [ext_resource type="PackedScene" uid="uid://dfg6qm282qxyc" path="res://DiceBuilding/DieFace.tscn" id="3_igylo"]
 
@@ -11,6 +12,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_auj5b")
 
 [node name="tempBG" type="Sprite2D" parent="."]
 modulate = Color(100, 100, 100, 1)
@@ -22,19 +24,39 @@ texture = ExtResource("1_2kulo")
 position = Vector2(126, 122)
 
 [node name="DieSlot1" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(378, 122)
+position = Vector2(402, 122)
 
 [node name="DieSlot2" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(630, 122)
+position = Vector2(678, 122)
 
 [node name="DieSlot3" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(882, 122)
+position = Vector2(954, 122)
 
 [node name="DieSlot4" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(1134, 122)
+position = Vector2(1230, 122)
 
 [node name="DieSlot5" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(1386, 122)
+position = Vector2(1506, 122)
 
-[node name="DieFace" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(309, 799)
+[node name="DieFace0" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(126, 954)
+face = "damage"
+
+[node name="DieFace1" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(366, 954)
+face = "damage"
+
+[node name="DieFace2" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(606, 954)
+
+[node name="DieFace3" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(846, 954)
+face = "poison"
+
+[node name="DieFace4" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(1086, 954)
+face = "fire"
+
+[node name="DieFace5" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(1326, 954)
+face = "ice"
