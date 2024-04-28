@@ -4,7 +4,6 @@ using System;
 public partial class Player : Node2D
 {
 	// attributes:
-	public int maxHealth;
 	public float health;
 
 	// effects:
@@ -14,43 +13,30 @@ public partial class Player : Node2D
 	public bool fire = false;
 	public int iceInfo = 0; // time
 	public bool ice = false;
-	public Vector2 meltInfo = new Vector2(0,0); // first=dmg, second = time
-	public bool melt = false;
+	public Vector2 thawInfo = new Vector2(0,0); // first=dmg, second = time
+	public bool thaw = false;
 
 	// other stuff
 	public Gameplay game;
 	public Timer effectTimer;
 	public Vector2 healthBarStart = new Vector2(1344, 960);
 	public Sprite2D healthBar;
+	public Sprite2D fireSprite;
+	public Sprite2D iceSprite;
+	public Sprite2D poisonSprite;
+	public Sprite2D thawSprite;
 
 	public override void _Ready()
 	{
 		game = GetParent<Gameplay>();
 		effectTimer = GetNode<Timer>("EffectTimer");
 		healthBar = GetNode<Sprite2D>("HealthBarCover");
-		// read attributes from text files
-		loadInfoFromTxt();
-		// add a thing to make the die have the right amount of sides
-		// game.die.sides = sideNum
-		// fill out dieEffects in gameplay
-	}
-
-	public void loadInfoFromTxt(){
-		var file = FileAccess.Open("user://Player.txt", FileAccess.ModeFlags.Read);
-		if(file==null){
-			file = FileAccess.Open("res://TextFiles/DefaultPlayer.txt", FileAccess.ModeFlags.Read);
-		}
-		maxHealth = Convert.ToInt32(file.GetLine());
-		health = maxHealth;
-		game.dieEffects[0] = file.GetLine();
-		game.dieEffects[1] = file.GetLine();
-		game.dieEffects[2] = file.GetLine();
-		game.dieEffects[3] = file.GetLine();
-		game.dieEffects[4] = file.GetLine();
-		game.dieEffects[5] = file.GetLine();
-		game.dieEffects[6] = file.GetLine(); // should be blank if nothing in that slot
-		game.handSize = Convert.ToInt32(file.GetLine());
-		file.Close();
+		globalVariables globalVars = GetNode<globalVariables>("/root/GlobalVariables");
+		health = globalVars.maxHealth;
+		fireSprite = GetNode<Sprite2D>("FireSprite");
+		iceSprite = GetNode<Sprite2D>("IceSprite");
+		poisonSprite = GetNode<Sprite2D>("PoisonSprite");
+		thawSprite = GetNode<Sprite2D>("ThawSprite");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -60,35 +46,53 @@ public partial class Player : Node2D
 			effectTimer.Start(1);
 		}
 		// updating health bar
-		float healthPercent = health / maxHealth;
+		float healthPercent = health / game.globalVars.maxHealth;
 		healthBar.Scale = new Vector2(1-healthPercent, 1);
 		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X *(1-healthPercent))/2), healthBarStart.Y);
+		// effect icons
 	}
 
 	public void dmgCalculation(){
+		if(poison){ // poison
+			GD.Print("poisoned");
+			poisonSprite.Visible = true;
+			// now to decrease timers
+			poisonInfo.Y -= 1;
+			if(poisonInfo.Y==0){
+				poison = false;
+				poisonSprite.Visible = false;
+			}
+		}
 		if(fire){ // fire
 			GD.Print("ah, thats hot");
 			health -= fireInfo.X;
 			// put some ui indicator stuff?
+			fireSprite.Visible = true;
 			// now to decrease timers
 			fireInfo.Y -= 1;
 			if(fireInfo.Y==0){
 				fire = false;
+				fireSprite.Visible = false;
 			}
 		}
 		if(ice){ // ice
 			GD.Print("antartica moment");
+			iceSprite.Visible = true;
 			// now to decrease timers
 			iceInfo -= 1;
 			if(iceInfo==0){
 				ice = false;
+				iceSprite.Visible = false;
 			}
 		}
-		if(melt){
+		if(thaw){
 			GD.Print("bros meltin under the pressure");
-			meltInfo.Y -= 1;
-			if(meltInfo.Y==0){
-				melt = false;
+			thawSprite.Visible = true;
+			health -= thawInfo.X;
+			thawInfo.Y -= 1;
+			if(thawInfo.Y==0){
+				thaw = false;
+				thawSprite.Visible = false;
 			}
 		}
 	}

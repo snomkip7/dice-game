@@ -28,7 +28,7 @@ texture = ExtResource("4_7rwxf")
 [node name="Player" parent="." instance=ExtResource("5_on0ec")]
 
 [node name="Die" parent="." instance=ExtResource("4_b6pja")]
-position = Vector2(895, 708)
+position = Vector2(960, 675)
 
 [node name="PlayButtonSprite" type="Sprite2D" parent="."]
 position = Vector2(1635, 808)

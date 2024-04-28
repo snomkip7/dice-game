@@ -24,6 +24,10 @@ public partial class Die : Area2D
 	public void rollDice(Node viewport, InputEvent @event, int shape_idx){ // input event
 		if(@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed == true){
 			if(canRoll){ // roll the die if nothing else is going on
+				if(player.ice){
+					GD.Print("Cant Roll while frozen");
+					return;
+				}
 				GD.Print("ROLL THE DICE");
 				gameplay.unSelect();
 				roll();
@@ -42,7 +46,6 @@ public partial class Die : Area2D
 	public void roll(){ // starts the rolling animation (when there is an animation)
 		if(player.poison){ // poison dmg if needed
 			player.health-= (int) (player.poisonInfo.X/3);
-			player.poisonInfo.Y -= 1;
 		}
 		canRoll = false;
 		GetNode<Timer>("RollTimer").Start(); // replace timer with animation, with an if/else for slow animation if ice

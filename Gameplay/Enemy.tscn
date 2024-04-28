@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://ejlhc4fuui1p"]
+[gd_scene load_steps=11 format=3 uid="uid://ejlhc4fuui1p"]
 
 [ext_resource type="Script" path="res://Gameplay/Enemy.cs" id="1_fh0ym"]
 [ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="2_wvtlu"]
@@ -6,6 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://s7lcwoofcui" path="res://Sprites/Game/healthBarBase.png" id="4_0qmwh"]
 [ext_resource type="Texture2D" uid="uid://dnxk3kh0h7nnc" path="res://Sprites/Game/healthBarCover.png" id="5_fryqi"]
 [ext_resource type="Texture2D" uid="uid://cljr374y2rlqp" path="res://Sprites/Game/healthBarOutline.png" id="6_12dei"]
+[ext_resource type="Texture2D" uid="uid://cshih5fjpmv72" path="res://Sprites/Dice/burnIcon.png" id="7_3x1m0"]
+[ext_resource type="Texture2D" uid="uid://cehabql4on4cs" path="res://Sprites/Dice/freezeIcon.png" id="8_nppo0"]
+[ext_resource type="Texture2D" uid="uid://c11g1hv5ia74x" path="res://Sprites/Dice/poisonIcon.png" id="9_tbd6c"]
+[ext_resource type="Texture2D" uid="uid://dd1f2dyunqhny" path="res://Sprites/Game/thawIcon.png" id="10_uwcsq"]
 
 [node name="Enemy" type="Node2D"]
 script = ExtResource("1_fh0ym")
@@ -16,12 +20,12 @@ scale = Vector2(5.626, 3.922)
 texture = ExtResource("2_wvtlu")
 
 [node name="EnemyDieBg" type="Sprite2D" parent="."]
-position = Vector2(972, 218)
+position = Vector2(932, 295)
 scale = Vector2(0.390625, 0.390625)
 texture = ExtResource("3_5tvm4")
 
 [node name="EnemyDieFace" type="Sprite2D" parent="."]
-position = Vector2(972, 218)
+position = Vector2(932, 295)
 scale = Vector2(0.339844, 0.339844)
 
 [node name="DecisionTimer" type="Timer" parent="."]
@@ -42,6 +46,30 @@ texture = ExtResource("5_fryqi")
 [node name="HealthBarOutline" type="Sprite2D" parent="."]
 position = Vector2(418, 68)
 texture = ExtResource("6_12dei")
+
+[node name="FireSprite" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1152, 50)
+scale = Vector2(0.183594, 0.183594)
+texture = ExtResource("7_3x1m0")
+
+[node name="IceSprite" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1152, 149)
+scale = Vector2(0.183594, 0.183594)
+texture = ExtResource("8_nppo0")
+
+[node name="PoisonSprite" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1152, 248)
+scale = Vector2(0.183594, 0.183594)
+texture = ExtResource("9_tbd6c")
+
+[node name="ThawSprite" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1154, 350)
+scale = Vector2(0.183594, 0.183594)
+texture = ExtResource("10_uwcsq")
 
 [connection signal="timeout" from="DecisionTimer" to="." method="rollOrPlay"]
 [connection signal="timeout" from="EffectTimer" to="." method="dmgCalculation"]

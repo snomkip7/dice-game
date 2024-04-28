@@ -15,34 +15,25 @@ public partial class Gameplay : Node2D
 	public bool dieSelected = false;
 	public string[] dieEffects = new string[7];
 	public string[] enemyDieEffects = new string[7];
-	public Dictionary<string, string> spellbook = new Dictionary<string, string>();
+	public Dictionary<string, string> spellbook;
 	public bool gameEnded;
+	public globalVariables globalVars;
 	
 	public override void _Ready()
 	{
-		handItems = new HandItem[handSize]; // setting things up
-		instanceHandItems();
 		enemy = GetNode<Enemy>("Enemy");
 		player = GetNode<Player>("Player");
+		globalVars = GetNode<globalVariables>("/root/GlobalVariables");
 		// setup spellbook
-		loadSpellbook();
+		spellbook = globalVars.spellbook;
+		handSize = globalVars.handSize;
+		dieEffects = globalVars.dieEffects;
+		//enemyDieEffects = globalVars.enemyDieEffects;
+		handItems = new HandItem[handSize]; // setting things up
+		instanceHandItems();
 	}
 
-	public void loadSpellbook(){ // gets spellbook from txt, will be removed when globalVars has the spellbook
-		var file = FileAccess.Open("user://Spellbook.txt", FileAccess.ModeFlags.Read);
-		if(file==null){
-			file = FileAccess.Open("res://TextFiles/Spellbook.txt", FileAccess.ModeFlags.Read);
-		}
-		string content = file.GetAsText();
-		var json = new Json();
-		var parsed = json.Parse(content);
-        if (parsed != Error.Ok)
-        {
-            GD.Print($"JSON Parse Error: {json.GetErrorMessage()} in {content} at line {json.GetErrorLine()}");
-        }
-		spellbook = new Dictionary<string, string>((Dictionary) json.Data);
-		file.Close();
-	}
+	
 	
 	public override void _Process(double delta)
 	{
@@ -95,6 +86,11 @@ public partial class Gameplay : Node2D
 
 	public void playRoll(){ // finds all the things that are selected and calls useRoll
 		// do the thing
+		if(player.ice){
+			GD.Print("Cant play roll while frozen");
+			return;
+		}
+
 		Die die = GetNode<Die>("Die");
 		int roll = die.nextRoll;
 		if(dieSelected){ // removing the hold button if die is played
@@ -122,7 +118,6 @@ public partial class Gameplay : Node2D
 
 		if(player.poison){ // poison dmg if needed
 			player.health -= player.poisonInfo.X;
-			player.poisonInfo.Y -= 1;
 		}
 
 		rollEffects(rolls, true); // calling the function that does the actual effects
@@ -176,54 +171,69 @@ public partial class Gameplay : Node2D
 			if(effects[i]=="fire"){fire=true;}
 			if(effects[i]=="ice"){ice=true;}
 		}
+		if(damage&&healing&&poison){ // heal dmg poison
+			if(atEnemy){
+				enemy.health -= getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				enemy.poison = false;
+			} else{
+				player.health -= getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				player.poison = false;
+			}
+			spellbook["dmg_heal_psn"]="unlocked";
+		}
 		if (healing){ // all this for healing
-			if(poison&&spellbook["heal_psn"]=="unlocked"){ // heal + poison
+			if(poison){ // heal + poison
 				if(atEnemy){
 					player.poison = false;
 				} else{
 					enemy.poison = false;
 				}
 				poison = false;
+				spellbook["heal_psn"]="unlocked";
 			}
-			if(fire&&spellbook["heal_fire"]=="unlocked"){ // heal + fire
+			if(fire){ // heal + fire
 				if(atEnemy){
 					player.fire = false;
 				} else{
 					enemy.fire = false;
 				}
 				fire = false;
+				spellbook["heal_fire"]="unlocked";
 			}
-			if(ice&&spellbook["heal_ice"]=="unlocked"){ // heal + ice
+			if(ice){ // heal + ice
 				if(atEnemy){
 					player.ice = false;
 				} else{
 					enemy.ice = false;
 				}
 				ice = false;
+				spellbook["heal_ice"]="unlocked";
 			}
-			if(damage&&spellbook["heal_dmg"]=="unlocked"&&!poison&&!fire&&!ice){ // heal + damage + no extra effects
+			if(damage&&!poison&&!fire&&!ice){ // heal + damage + no extra effects
 				if(atEnemy){
 					player.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
-					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
 				} else{
 					enemy.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
 				}
 				damage = false;
-			} else if(damage&&spellbook["heal_dmg_effect"]=="unlocked"){ // heal + damage + extra effects
+				spellbook["heal_dmg"]="unlocked";
+			} else if(damage){ // heal + damage + extra effects
 				if(atEnemy){
 					player.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
-					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
 				} else{
 					enemy.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
 				}
 				damage = false;
+				spellbook["heal_dmg_effect"]="unlocked";
 			}
 			if(!damage&&!poison&&!fire&&!ice){ // regular healing
 				if(atEnemy){
 					player.health += getCount(effects, "healing") * 20;
-					if(player.health>player.maxHealth){player.health=player.maxHealth;}
+					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
 				} else{
 					enemy.health += getCount(effects, "healing") * 20;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
@@ -231,39 +241,40 @@ public partial class Gameplay : Node2D
 			}
 		}
 		 // effects without healing
-		if((fire||(enemy.type=="fire"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["fire_ice"]=="unlocked"){ // melt
+		// if((fire||(enemy.type=="fire"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["fire_ice"]=="unlocked"){ // melt
+		// 	if(atEnemy){
+		// 		enemy.thawInfo = new Vector2(10+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
+		// 		enemy.thaw = true;
+		// 	} else{
+		// 		player.thawInfo = new Vector2(10+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
+		// 		player.thaw = true;
+		// 	}
+		// 	fire = false;
+		// 	ice = false;
+		// } 
+		// if((poison||(enemy.type=="poison"&&atEnemy))&&(fire||(enemy.type=="fire"&&atEnemy))&&spellbook["psn_fire"]=="unlocked"){ // poison fire
+		// 	// poison fire implemenation (gotta think of smth)
+		// 	fire = false;
+		// 	poison = false;
+		// } 
+		// if((poison||(enemy.type=="poison"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["psn_ice"]=="unlocked"){ // poison ice
+		// 	// poison ice implemenation (gotta think of smth)
+		// 	ice = false;
+		// 	poison = false;
+		// } 
+		if(damage&&poison){ // damage poison
 			if(atEnemy){
-				enemy.meltInfo = new Vector2(5+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
-				enemy.melt = true;
-			} else{
-				player.meltInfo = new Vector2(5+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
-				player.melt = true;
-			}
-			fire = false;
-			ice = false;
-		} 
-		if((poison||(enemy.type=="poison"&&atEnemy))&&(fire||(enemy.type=="fire"&&atEnemy))&&spellbook["psn_fire"]=="unlocked"){ // poison fire
-			// poison fire implemenation (gotta think of smth)
-			fire = false;
-			poison = false;
-		} 
-		if((poison||(enemy.type=="poison"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["psn_ice"]=="unlocked"){ // poison ice
-			// poison ice implemenation (gotta think of smth)
-			ice = false;
-			poison = false;
-		} 
-		if(damage&&poison&&spellbook["dmg_psn"]=="unlocked"){ // damage poison
-			if(atEnemy){
-				enemy.poisonInfo = new Vector2(15+getCount(effects, "damage")*3, getCount(effects, "poison") * 2);
+				enemy.poisonInfo = new Vector2(10+getCount(effects, "damage")*3, getCount(effects, "poison") * 5);
 				enemy.poison = true;
 			} else{
-				player.poisonInfo = new Vector2(15+getCount(effects, "damage")*3, getCount(effects, "poison") * 2);
+				player.poisonInfo = new Vector2(10+getCount(effects, "damage")*3, getCount(effects, "poison") * 5);
 				player.poison = true;
 			}
 			poison = false;
 			damage = false;
+			spellbook["dmg_psn"]="unlocked";
 		} 
-		if(damage&&fire&&spellbook["dmg_fire"]=="unlocked"){ // damage fire
+		if(damage&&fire){ // damage fire
 			if(atEnemy){
 				enemy.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
 				enemy.fire = true;
@@ -273,8 +284,9 @@ public partial class Gameplay : Node2D
 			}
 			fire = false;
 			damage = false;
+			spellbook["dmg_fire"]="unlocked";
 		} 
-		if(damage&&ice&&spellbook["dmg_ice"]=="unlocked"){ // damage ice (just extends length cuz idk)
+		if(damage&&ice){ // damage ice (just extends length cuz idk)
 			if(atEnemy){
 				enemy.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
 				enemy.ice = true;
@@ -284,33 +296,73 @@ public partial class Gameplay : Node2D
 			}
 			ice = false;
 			damage = false;
+			spellbook["dmg_ice"]="unlocked";
 		}
 		// applying effects not used
 		if(poison){ // pure poison
 			if(atEnemy){
-				enemy.poisonInfo = new Vector2(15, getCount(effects, "poison") * 2);
+				enemy.poisonInfo = new Vector2(10, getCount(effects, "poison") * 5);
 				enemy.poison = true;
 			} else{
-				player.poisonInfo = new Vector2(15, getCount(effects, "poison") * 2);
+				player.poisonInfo = new Vector2(10, getCount(effects, "poison") * 5);
 				player.poison = true;
 			}
 		}
 		if(fire){ // pure fire
 			if(atEnemy){
-				enemy.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
-				enemy.fire = true;
+				if(enemy.ice&&!ice){
+					enemy.thawInfo = new Vector2(10+getCount(effects, "fire")*5, 3+getCount(effects, "fire") * 2);
+					enemy.thaw = true;
+					enemy.fire = false;
+					enemy.ice = false;
+					enemy.iceSprite.Visible = false;
+					enemy.fireSprite.Visible = false;
+				} else{
+					enemy.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
+					enemy.fire = true;
+				}
+				
 			} else{
-				player.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
-				player.fire = true;
+				if(player.ice&&!ice){
+					player.thawInfo = new Vector2(10+getCount(effects, "fire")*5, 3+getCount(effects, "fire") * 2);
+					player.thaw = true;
+					player.fire = false;
+					player.ice = false;
+					player.iceSprite.Visible = false;
+					player.fireSprite.Visible = false;
+
+				} else{
+					player.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
+					player.fire = true;
+				}
 			}
 		}
 		if(ice){ // pure ice
 			if(atEnemy){
-				enemy.iceInfo = getCount(effects, "ice")*10;
-				enemy.ice = true;
+				if(enemy.fire&&!fire){
+					enemy.thawInfo = new Vector2(8+getCount(effects, "ice")*2, 3+getCount(effects, "ice") * 3);
+					enemy.thaw = true;
+					enemy.fire = false;
+					enemy.ice = false;
+					enemy.iceSprite.Visible = false;
+					enemy.fireSprite.Visible = false;
+				} else{
+					enemy.iceInfo = getCount(effects, "ice")*10;
+					enemy.ice = true;
+				}
+				
 			} else{
-				player.iceInfo = getCount(effects, "ice")*10;
-				player.ice = true;
+				if(player.fire&&!fire){
+					player.thawInfo = new Vector2(8+getCount(effects, "ice")*2, 3+getCount(effects, "ice") * 3);
+					player.thaw = true;
+					player.fire = false;
+					player.ice = false;
+					player.iceSprite.Visible = false;
+					player.fireSprite.Visible = false;
+				} else{
+					player.iceInfo = getCount(effects, "ice")*10;
+					player.ice = true;
+				}
 			}
 		}
 		if(damage){ // pure dmg
