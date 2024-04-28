@@ -31,8 +31,7 @@ public partial class Enemy : Node2D
 	public bool canRoll = true;
 	public int roll = -1;
 	public Gameplay game;
-	public Vector2 healthBarStart = new Vector2(393.5f, 67.011f);
-	public Vector2 healthBarStretch = new Vector2(5.461f, 0.485f); // change to 1,1 when real sprite exists
+	public Vector2 healthBarStart = new Vector2(812.5f, 68);
 	public Sprite2D healthBar;
 
 	public override void _Ready()
@@ -47,7 +46,7 @@ public partial class Enemy : Node2D
 		}
 		decisionTimer = GetNode<Timer>("DecisionTimer");
 		effectTimer = GetNode<Timer>("EffectTimer");
-		healthBar = GetNode<Sprite2D>("HealthBarForeground");
+		healthBar = GetNode<Sprite2D>("HealthBarCover");
 	}
 
 	public void loadInfoFromTxt(){
@@ -98,9 +97,9 @@ public partial class Enemy : Node2D
 		}
 		// updating health bar
 		float healthPercent = health / maxHealth;
-		healthBar.Scale = new Vector2(healthBarStretch.X*healthPercent, healthBarStretch.Y);
-		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X * (healthBarStretch.X-healthBar.Scale.X))/2), healthBarStart.Y);
-	}
+		healthBar.Scale = new Vector2(1-healthPercent, 1);
+		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X *(1-healthPercent))/2), healthBarStart.Y);
+		}
 
 	public void rollOrPlay(){ // called by decision timer
 		if(canRoll){ // if it can roll, then roll

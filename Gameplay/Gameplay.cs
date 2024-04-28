@@ -89,6 +89,7 @@ public partial class Gameplay : Node2D
 		// put up a ui msg or smth showing what you rolled
 		GD.Print("You got a "+roll+" do you want to play or hold?");
 		GetNode<Button>("HoldRollButton").Visible = true; // remember to add an option to play held rolls if hand is full
+		GetNode<Sprite2D>("HoldButtonSprite").Visible = true;
 		dieSelected = true;
 	}
 
@@ -98,6 +99,7 @@ public partial class Gameplay : Node2D
 		int roll = die.nextRoll;
 		if(dieSelected){ // removing the hold button if die is played
 			GetNode<Button>("HoldRollButton").Visible = false;
+			GetNode<Sprite2D>("HoldButtonSprite").Visible = false;
 		}
 		int[] rolls;
 		int iter = 0;
@@ -112,6 +114,7 @@ public partial class Gameplay : Node2D
 		for(int i = 0; i < handSize; i++){ // adding all selected hand items and updating them to be empty
 			if(handItems[i].selected){
 				rolls[iter] = handItems[i].roll;
+				handItems[i].selected = false;
 				handItems[i].updateItem(-1);
 				iter++;
 			}
@@ -144,6 +147,7 @@ public partial class Gameplay : Node2D
 		}
 		if(held){ // resetting die & removing hold button if is sucessfully held
 			GetNode<Button>("HoldRollButton").Visible = false;
+			GetNode<Sprite2D>("HoldButtonSprite").Visible = false;
 			dieSelected = false;
 			die.reset();
 		} else{ // if is unable to hold
@@ -218,29 +222,34 @@ public partial class Gameplay : Node2D
 			}
 			if(!damage&&!poison&&!fire&&!ice){ // regular healing
 				if(atEnemy){
-					player.health += getCount(effects, "healing") * 15;
+					player.health += getCount(effects, "healing") * 20;
 					if(player.health>player.maxHealth){player.health=player.maxHealth;}
 				} else{
-					enemy.health += getCount(effects, "healing") * 15;
+					enemy.health += getCount(effects, "healing") * 20;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
 				}
 			}
 		}
 		 // effects without healing
-		if(fire&&ice&&spellbook["fire_ice"]=="unlocked"){ // melt
+		if((fire||(enemy.type=="fire"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["fire_ice"]=="unlocked"){ // melt
 			if(atEnemy){
-				enemy.fireInfo = new Vector2(5+getCount(effects, "fire")*5, getCount(effects, "ice") * 5);
-				enemy.fire = true;
+				enemy.meltInfo = new Vector2(5+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
+				enemy.melt = true;
 			} else{
-				player.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
-				player.fire = true;
+				player.meltInfo = new Vector2(5+getCount(effects, "fire")*5, 3+getCount(effects, "ice") * 5);
+				player.melt = true;
 			}
 			fire = false;
 			ice = false;
 		} 
-		if(poison&&fire&&spellbook["psn_fire"]=="unlocked"){ // poison fire
+		if((poison||(enemy.type=="poison"&&atEnemy))&&(fire||(enemy.type=="fire"&&atEnemy))&&spellbook["psn_fire"]=="unlocked"){ // poison fire
 			// poison fire implemenation (gotta think of smth)
 			fire = false;
+			poison = false;
+		} 
+		if((poison||(enemy.type=="poison"&&atEnemy))&&(ice||(enemy.type=="ice"&&atEnemy))&&spellbook["psn_ice"]=="unlocked"){ // poison ice
+			// poison ice implemenation (gotta think of smth)
+			ice = false;
 			poison = false;
 		} 
 		if(damage&&poison&&spellbook["dmg_psn"]=="unlocked"){ // damage poison
@@ -279,10 +288,10 @@ public partial class Gameplay : Node2D
 		// applying effects not used
 		if(poison){ // pure poison
 			if(atEnemy){
-				enemy.poisonInfo = new Vector2(15, getCount(effects, "poison") * 5);
+				enemy.poisonInfo = new Vector2(15, getCount(effects, "poison") * 2);
 				enemy.poison = true;
 			} else{
-				player.poisonInfo = new Vector2(15, getCount(effects, "poison") * 5);
+				player.poisonInfo = new Vector2(15, getCount(effects, "poison") * 2);
 				player.poison = true;
 			}
 		}

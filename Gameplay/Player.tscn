@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://dkvo8m21fvd2m"]
+[gd_scene load_steps=5 format=3 uid="uid://dkvo8m21fvd2m"]
 
 [ext_resource type="Script" path="res://Gameplay/Player.cs" id="1_r4htb"]
-[ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="2_ubl02"]
+[ext_resource type="Texture2D" uid="uid://s7lcwoofcui" path="res://Sprites/Game/healthBarBase.png" id="2_to7ai"]
+[ext_resource type="Texture2D" uid="uid://dnxk3kh0h7nnc" path="res://Sprites/Game/healthBarCover.png" id="3_824ie"]
+[ext_resource type="Texture2D" uid="uid://cljr374y2rlqp" path="res://Sprites/Game/healthBarOutline.png" id="4_1nvom"]
 
 [node name="Player" type="Node2D"]
 script = ExtResource("1_r4htb")
@@ -9,16 +11,18 @@ script = ExtResource("1_r4htb")
 [node name="EffectTimer" type="Timer" parent="."]
 one_shot = true
 
-[node name="HealthBarBackground" type="Sprite2D" parent="."]
+[node name="HealthBarBase" type="Sprite2D" parent="."]
+position = Vector2(949.5, 960.004)
+texture = ExtResource("2_to7ai")
+
+[node name="HealthBarCover" type="Sprite2D" parent="."]
+position = Vector2(1344, 960.004)
+scale = Vector2(1e-05, 1)
+texture = ExtResource("3_824ie")
+
+[node name="HealthBarOutline" type="Sprite2D" parent="."]
 modulate = Color(0.352941, 0.411765, 0.411765, 1)
 position = Vector2(949.5, 960.004)
-scale = Vector2(6.16406, 0.546932)
-texture = ExtResource("2_ubl02")
-
-[node name="HealthBarForeground" type="Sprite2D" parent="."]
-modulate = Color(1, 0, 0, 1)
-position = Vector2(949.5, 960.004)
-scale = Vector2(6.16406, 0.546933)
-texture = ExtResource("2_ubl02")
+texture = ExtResource("4_1nvom")
 
 [connection signal="timeout" from="EffectTimer" to="." method="dmgCalculation"]

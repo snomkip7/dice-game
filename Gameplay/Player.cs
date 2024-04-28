@@ -20,15 +20,14 @@ public partial class Player : Node2D
 	// other stuff
 	public Gameplay game;
 	public Timer effectTimer;
-	public Vector2 healthBarStart = new Vector2(949.5f, 960.004f);
-	public Vector2 healthBarStretch = new Vector2(6.164f, 0.547f); // change to 1,1 when real sprite exists
+	public Vector2 healthBarStart = new Vector2(1344, 960);
 	public Sprite2D healthBar;
 
 	public override void _Ready()
 	{
 		game = GetParent<Gameplay>();
 		effectTimer = GetNode<Timer>("EffectTimer");
-		healthBar = GetNode<Sprite2D>("HealthBarForeground");
+		healthBar = GetNode<Sprite2D>("HealthBarCover");
 		// read attributes from text files
 		loadInfoFromTxt();
 		// add a thing to make the die have the right amount of sides
@@ -62,8 +61,8 @@ public partial class Player : Node2D
 		}
 		// updating health bar
 		float healthPercent = health / maxHealth;
-		healthBar.Scale = new Vector2(healthBarStretch.X*healthPercent, healthBarStretch.Y);
-		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X * (healthBarStretch.X-healthBar.Scale.X))/2), healthBarStart.Y);
+		healthBar.Scale = new Vector2(1-healthPercent, 1);
+		healthBar.Position = new Vector2(healthBarStart.X - ((healthBar.Texture.GetSize().X *(1-healthPercent))/2), healthBarStart.Y);
 	}
 
 	public void dmgCalculation(){

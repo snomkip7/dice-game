@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dj0srqtgnwpi0"]
 
 [ext_resource type="Script" path="res://Gameplay/Die.cs" id="1_71oj2"]
-[ext_resource type="Texture2D" uid="uid://cbes5tgtnmo36" path="res://Sprites/Dice/tempDiceIcon.png" id="2_ghfss"]
+[ext_resource type="Texture2D" uid="uid://dimb58e8tos6" path="res://Sprites/Dice/tempDiceIcon.png" id="2_ghfss"]
 [ext_resource type="Texture2D" uid="uid://cb61ho0c0qu3v" path="res://Sprites/Dice/selectedIcon.png" id="3_1xxxg"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ap5g1"]
