@@ -20,43 +20,54 @@ show_behind_parent = true
 position = Vector2(960, 540)
 texture = ExtResource("1_2kulo")
 
-[node name="DieSlot0" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(126, 122)
+[node name="DieSlot0" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(270, 178)
 
-[node name="DieSlot1" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(402, 122)
+[node name="DieSlot1" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(546, 178)
 
-[node name="DieSlot2" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(678, 122)
+[node name="DieSlot2" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(822, 178)
 
-[node name="DieSlot3" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(954, 122)
+[node name="DieSlot3" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(1098, 178)
 
-[node name="DieSlot4" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(1230, 122)
+[node name="DieSlot4" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(1374, 178)
 
-[node name="DieSlot5" parent="." instance=ExtResource("2_r0sfo")]
-position = Vector2(1506, 122)
+[node name="DieSlot5" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(1650, 178)
 
 [node name="DieFace0" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(126, 954)
+position = Vector2(358, 954)
 face = "damage"
 
 [node name="DieFace1" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(366, 954)
+position = Vector2(598, 954)
 face = "damage"
 
 [node name="DieFace2" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(606, 954)
+position = Vector2(838, 954)
 
 [node name="DieFace3" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(846, 954)
+position = Vector2(1078, 954)
 face = "poison"
 
 [node name="DieFace4" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(1086, 954)
+position = Vector2(1318, 954)
 face = "fire"
 
 [node name="DieFace5" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(1326, 954)
+position = Vector2(1558, 954)
 face = "ice"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.08
+anchor_bottom = 0.088
+offset_right = -0.600011
+offset_bottom = -0.0400075
+text = "Save"
+
+[connection signal="pressed" from="Button" to="." method="SaveDice"]
