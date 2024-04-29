@@ -24,12 +24,16 @@ public partial class dbManager : Control
 	}
 
 	public void SaveDice(){
-		String[] savedFaces = new String[7];
-		for(int i = 0; i < 6; i++){
+		List<String> savedFaces = new();
+		int i = 0;
+		while(GetNode<Node2D>("DieFace" + i) != null){
 			DieFace curDie = GetNode<Node2D>("DieFace" + i) as DieFace;
-			savedFaces[i] = curDie.face;
+			if(curDie.GetNode<Area2D>("Area2D").IsInGroup("slotted")){
+				savedFaces.Add(curDie.face);
+			}
+			i++;
 		}
-		globalVariables.dieEffects = savedFaces;
+		globalVariables.dieEffects = savedFaces.ToArray();
 		GetTree().ChangeSceneToFile("res://MainMenu.tscn");
 	}
 }
