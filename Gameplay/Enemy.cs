@@ -15,14 +15,14 @@ public partial class Enemy : Node2D
 	public int reward = 1;
 
 	// effects:
-	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=times
+	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=time
 	public bool poison = false;
 	public Vector2 fireInfo = new Vector2(0,0); // first=dmg, second=time
 	public bool fire = false;
 	public int iceInfo = 0; // time
 	public bool ice = false;
-	public Vector2 meltInfo = new Vector2(0,0); // first=dmg, second = time
-	public bool melt = false;
+	public Vector2 thawInfo = new Vector2(0,0); // first=dmg, second = time
+	public bool thaw = false;
 
 	// other stuff
 	public int[] heldRolls; // -1 if empty
@@ -33,13 +33,18 @@ public partial class Enemy : Node2D
 	public Gameplay game;
 	public Vector2 healthBarStart = new Vector2(812.5f, 68);
 	public Sprite2D healthBar;
+	public Sprite2D fireSprite;
+	public Sprite2D iceSprite;
+	public Sprite2D poisonSprite;
+	public Sprite2D thawSprite;
+	public Player player;
 
 	public override void _Ready()
 	{
 		game = GetParent<Gameplay>();
 		// set all those attributes based on text file, also add a sprite
 		// fill out enemyDieEffects in gameplay
-		loadInfoFromTxt();
+		getInfo();
 		heldRolls = new int[handSize];
 		for(int i = 0; i < handSize;i++){
 			heldRolls[i] = -1;
@@ -47,39 +52,62 @@ public partial class Enemy : Node2D
 		decisionTimer = GetNode<Timer>("DecisionTimer");
 		effectTimer = GetNode<Timer>("EffectTimer");
 		healthBar = GetNode<Sprite2D>("HealthBarCover");
+		fireSprite = GetNode<Sprite2D>("FireSprite");
+		iceSprite = GetNode<Sprite2D>("IceSprite");
+		poisonSprite = GetNode<Sprite2D>("PoisonSprite");
+		thawSprite = GetNode<Sprite2D>("ThawSprite");
+		player = GetNode<Player>("../Player");
 	}
 
-	public void loadInfoFromTxt(){
-		FileAccess file = FileAccess.Open("user://EnemyPath.txt", FileAccess.ModeFlags.Read);
-		if(file==null){
-			GD.Print("cant find file path, default enemy time");
-			file = FileAccess.Open("res://TextFiles/Enemies/DefaultEnemy.txt", FileAccess.ModeFlags.Read);
-			if(file==null){
-				GD.Print("Bruh the backup is wrong");
-			}
-		} else{
-			string path = "res://TextFiles/" + file.GetLine()+".txt";
-			file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
-			if(file==null){
-				GD.Print("bruh the path is wrong");
-			}
-		}
-		maxHealth = Convert.ToInt32(file.GetLine());
+	// public void loadInfoFromTxt(){
+	// 	FileAccess file = FileAccess.Open("user://EnemyPath.txt", FileAccess.ModeFlags.Read);
+	// 	if(file==null){
+	// 		GD.Print("cant find file path, default enemy time");
+	// 		file = FileAccess.Open("res://TextFiles/Enemies/DefaultEnemy.txt", FileAccess.ModeFlags.Read);
+	// 		if(file==null){
+	// 			GD.Print("Bruh the backup is wrong");
+	// 		}
+	// 	} else{
+	// 		string path = "res://TextFiles/" + file.GetLine()+".txt";
+	// 		file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+	// 		if(file==null){
+	// 			GD.Print("bruh the path is wrong");
+	// 		}
+	// 	}
+	// 	maxHealth = Convert.ToInt32(file.GetLine());
+	// 	health = maxHealth;
+	// 	game.enemyDieEffects[0] = file.GetLine();
+	// 	game.enemyDieEffects[1] = file.GetLine();
+	// 	game.enemyDieEffects[2] = file.GetLine();
+	// 	game.enemyDieEffects[3] = file.GetLine();
+	// 	game.enemyDieEffects[4] = file.GetLine();
+	// 	game.enemyDieEffects[5] = file.GetLine();
+	// 	game.enemyDieEffects[6] = file.GetLine(); // should be blank if nothing in that slot
+	// 	type = file.GetLine();
+	// 	reward = Convert.ToInt32(file.GetLine());
+	// 	aiLevel = Convert.ToInt32(file.GetLine());
+	// 	decisionTime = Convert.ToInt32(file.GetLine());
+	// 	handSize = Convert.ToInt32(file.GetLine());
+	// 	// decisionBuffer = Convert.ToInt32(file.GetLine());
+	// 	file.Close();
+	// }
+
+	public void getInfo(){
+		globalVariables globalVars = GetNode<globalVariables>("/root/GlobalVariables");
+		maxHealth = globalVars.enemyMaxHealth;
 		health = maxHealth;
-		game.enemyDieEffects[0] = file.GetLine();
-		game.enemyDieEffects[1] = file.GetLine();
-		game.enemyDieEffects[2] = file.GetLine();
-		game.enemyDieEffects[3] = file.GetLine();
-		game.enemyDieEffects[4] = file.GetLine();
-		game.enemyDieEffects[5] = file.GetLine();
-		game.enemyDieEffects[6] = file.GetLine(); // should be blank if nothing in that slot
-		type = file.GetLine();
-		reward = Convert.ToInt32(file.GetLine());
-		aiLevel = Convert.ToInt32(file.GetLine());
-		decisionTime = Convert.ToInt32(file.GetLine());
-		handSize = Convert.ToInt32(file.GetLine());
-		// decisionBuffer = Convert.ToInt32(file.GetLine());
-		file.Close();
+		type = globalVars.enemyType;
+		reward = globalVars.enemyReward;
+		aiLevel = globalVars.aiLevel;
+		decisionTime = globalVars.decisionTime;
+		handSize = globalVars.enemyHandSize;
+		RandomNumberGenerator rng = new RandomNumberGenerator();
+		game.enemyDieEffects[0] = globalVars.effects[0];
+		game.enemyDieEffects[1] = globalVars.effects[rng.RandiRange(0,4)];
+		game.enemyDieEffects[2] = globalVars.effects[rng.RandiRange(0,4)];
+		game.enemyDieEffects[3] = globalVars.effects[rng.RandiRange(0,4)];
+		game.enemyDieEffects[4] = globalVars.effects[rng.RandiRange(0,4)];
+		game.enemyDieEffects[5] = globalVars.effects[rng.RandiRange(0,4)];
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -87,9 +115,6 @@ public partial class Enemy : Node2D
 	{
 		if(decisionTimer.TimeLeft == 0){ // starts decision time with a randomish time (with buffer)
 			int buffer = new RandomNumberGenerator().RandiRange(-decisionBuffer, decisionBuffer);
-			if(ice){
-				buffer += 5;
-			}
 			decisionTimer.Start(decisionTime+buffer);
 		}
 		if(effectTimer.TimeLeft == 0){ // calls dmg calculations
@@ -102,6 +127,9 @@ public partial class Enemy : Node2D
 		}
 
 	public void rollOrPlay(){ // called by decision timer
+		if(ice){
+			return;
+		}
 		if(canRoll){ // if it can roll, then roll
 			enemyRollDice();
 			canRoll = false;
@@ -114,16 +142,11 @@ public partial class Enemy : Node2D
 	public void enemyRollDice(){ // decided when/where to call this function
 		if(poison){
 			health -= (int) (poisonInfo.X/3);
-			poisonInfo.Y -= 1;
 		}
 		roll = new RandomNumberGenerator().RandiRange(1, dieSides);
 		// play an animation
 		updateDieSprite();
-		if(ice){
-			decisionTimer.Start(5); // change to when roll animation
-		} else{
-			decisionTimer.Start(1.5); // change to when roll animation
-		}
+		decisionTimer.Start(1.5); // change to when roll animation
 		
 	}
 
@@ -134,7 +157,6 @@ public partial class Enemy : Node2D
 		if(decision<25){ // dumbest move - play immediately
 			if(poison){
 				health -= (int) poisonInfo.X;
-				poisonInfo.Y -= 1;
 			}
 			int[] rolls = new int[1];
 			rolls[0] = roll;
@@ -167,38 +189,161 @@ public partial class Enemy : Node2D
 		// to be done
 		if(poison){
 			health -= (int) poisonInfo.X;
-			poisonInfo.Y -= 1;
 		}
-		int[] rolls = new int[1]; // REMOVE THIS LOGIC, THIS IS TEMPORARY
-		rolls[0] = roll;
+		// int[] rolls = new int[1]; // REMOVE THIS LOGIC, THIS IS TEMPORARY
+		// rolls[0] = roll;
+
+		bool tempPoison = false;
+		bool tempDamage = false;
+		bool tempHealing = false;
+		bool tempIce = false;
+		bool tempFire = false;
+
+		for(int i=0;i<handSize;i++){
+			if(heldRolls[i]!=-1){
+				string effect = game.enemyDieEffects[heldRolls[i]];
+				if(effect=="healing"){tempHealing=true;}
+				if(effect=="damage"){tempDamage=true;}
+				if(effect=="poison"){tempPoison=true;}
+				if(effect=="fire"){tempFire=true;}
+				if(effect=="ice"){tempIce=true;}
+			}
+		}
+		string rollEffect = game.enemyDieEffects[roll];
+		if(rollEffect=="healing"){tempHealing=true;}
+		if(rollEffect=="damage"){tempDamage=true;}
+		if(rollEffect=="poison"){tempPoison=true;}
+		if(rollEffect=="fire"){tempFire=true;}
+		if(rollEffect=="ice"){tempIce=true;}
+
+		if(tempHealing&&tempPoison&&tempDamage){
+			string[] effects = new string[3];
+			effects[0]="healing";
+			effects[1]="damage";
+			effects[2]="poison";
+			callRoll(effects);
+		}
+		if(tempHealing&&tempIce&&ice){
+			string[] effects = new string[2];
+			effects[0]="healing";
+			effects[1]="ice";
+			callRoll(effects);
+		}
+		if(tempHealing&&tempFire&&fire){
+			string[] effects = new string[2];
+			effects[0]="healing";
+			effects[1]="fire";
+			callRoll(effects);
+		}
+		if(tempHealing&&tempPoison&&poison){
+			string[] effects = new string[2];
+			effects[0]="healing";
+			effects[1]="poison";
+			callRoll(effects);
+		}
+		if(tempIce&&player.fire){
+			string[] effects = new string[1];
+			effects[0]="ice";
+			callRoll(effects);
+		}
+		if(tempFire&&player.ice){
+			string[] effects = new string[1];
+			effects[0]="ice";
+			callRoll(effects);
+		}
+		if(tempDamage&&tempPoison){
+			string[] effects = new string[2];
+			effects[0]="damage";
+			effects[1]="poison";
+			callRoll(effects);
+		}
+		if(tempDamage&&tempFire){
+			string[] effects = new string[2];
+			effects[0]="damage";
+			effects[1]="fire";
+			callRoll(effects);
+		}
+		if(tempDamage&&tempIce){
+			string[] effects = new string[2];
+			effects[0]="damage";
+			effects[1]="ice";
+			callRoll(effects);
+		}
+		if(tempDamage&&tempHealing&&(maxHealth-health>20)){
+			string[] effects = new string[2];
+			effects[0]="damage";
+			effects[1]="healing";
+			callRoll(effects);
+		}
+
+		//GetParent<Gameplay>().rollEffects(rolls, false);
+		//roll = -1;
+	}
+
+	public void callRoll(string[] effects){
+		string nums = "";
+		for(int i=0;i<handSize;i++){
+			for(int j=0;j<effects.Length;j++){
+				if(heldRolls[i]!=-1&&effects[j]==game.enemyDieEffects[heldRolls[i]]){
+					nums += heldRolls[i];
+					heldRolls[i] = -1;
+				}
+			}
+		}
+		for(int k=0;k<effects.Length;k++){
+			if(effects[k]==game.enemyDieEffects[roll-1]){
+				nums+=roll;
+				roll = -1;
+			}
+		}
+		int[] rolls = new int[nums.Length];
+		for(int i=0;i<rolls.Length;i++){
+			rolls[i]=Convert.ToInt32(nums[i]);
+		}
 		GetParent<Gameplay>().rollEffects(rolls, false);
-		roll = -1;
 	}
 
 	public void dmgCalculation(){
+		if(poison){ // poison
+			GD.Print("poisoned");
+			poisonSprite.Visible = true;
+			// now to decrease timers
+			poisonInfo.Y -= 1;
+			if(poisonInfo.Y==0){
+				poison = false;
+				poisonSprite.Visible = false;
+			}
+		}
 		if(fire){ // fire
 			GD.Print("ah, thats hot");
 			health -= fireInfo.X;
 			// put some ui indicator stuff?
+			fireSprite.Visible = true;
 			// now to decrease timers
 			fireInfo.Y -= 1;
 			if(fireInfo.Y==0){
 				fire = false;
+				fireSprite.Visible = false;
 			}
 		}
 		if(ice){ // ice
 			GD.Print("antartica moment");
+			iceSprite.Visible = true;
 			// now to decrease timers
 			iceInfo -= 1;
 			if(iceInfo==0){
 				ice = false;
+				iceSprite.Visible = false;
 			}
 		}
-		if(melt){
+		if(thaw){
 			GD.Print("bros meltin under the pressure");
-			meltInfo.Y -= 1;
-			if(meltInfo.Y==0){
-				melt = false;
+			thawSprite.Visible = true;
+			health -= thawInfo.X;
+			thawInfo.Y -= 1;
+			if(thawInfo.Y==0){
+				thaw = false;
+				thawSprite.Visible = false;
 			}
 		}
 	}
