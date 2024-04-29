@@ -18,6 +18,7 @@ public partial class Gameplay : Node2D
 	public Dictionary<string, string> spellbook;
 	public bool gameEnded;
 	public globalVariables globalVars;
+	public Label actionLog;
 	
 	public override void _Ready()
 	{
@@ -31,6 +32,7 @@ public partial class Gameplay : Node2D
 		//enemyDieEffects = globalVars.enemyDieEffects;
 		handItems = new HandItem[handSize]; // setting things up
 		instanceHandItems();
+		actionLog = GetNode<Label>("ActionLog");
 	}
 
 	
@@ -53,6 +55,12 @@ public partial class Gameplay : Node2D
 			GetNode<Button>("GameEndButton").Visible = true;
 			GetNode<Button>("GameEndButton").GetNode<Sprite2D>("LoseBanner").Visible = true;
 			gameEnded = true;
+		}
+		while(actionLog.GetLineCount()>9){ // max displays 9 lines
+			string text = actionLog.Text;
+			int lineEnd = text.IndexOf("\n");
+			text = text.Substring(lineEnd+1);
+			actionLog.Text = text;
 		}
 	}
 
@@ -79,6 +87,7 @@ public partial class Gameplay : Node2D
 	public void rollMade(int roll){ // after a roll is made, shows hold button & selects die
 		// put up a ui msg or smth showing what you rolled
 		GD.Print("You got a "+roll+" do you want to play or hold?");
+		actionLog.Text +="\nYou rolled a "+dieEffects[roll-1]+".";
 		GetNode<Button>("HoldRollButton").Visible = true; // remember to add an option to play held rolls if hand is full
 		GetNode<Sprite2D>("HoldButtonSprite").Visible = true;
 		dieSelected = true;
@@ -88,6 +97,7 @@ public partial class Gameplay : Node2D
 		// do the thing
 		if(player.ice){
 			GD.Print("Cant play roll while frozen");
+			actionLog.Text +="\nYou can't play rolls while frozen.";
 			return;
 		}
 
@@ -118,6 +128,7 @@ public partial class Gameplay : Node2D
 
 		if(player.poison){ // poison dmg if needed
 			player.health -= player.poisonInfo.X;
+			actionLog.Text +="\nYou took "+player.poisonInfo.X+" poison damage.";
 		}
 
 		rollEffects(rolls, true); // calling the function that does the actual effects
@@ -138,15 +149,17 @@ public partial class Gameplay : Node2D
 			if(handItems[i].full == false){
 				handItems[i].updateItem(roll);
 				held = true;
+				
 			}
 		}
 		if(held){ // resetting die & removing hold button if is sucessfully held
 			GetNode<Button>("HoldRollButton").Visible = false;
 			GetNode<Sprite2D>("HoldButtonSprite").Visible = false;
+			actionLog.Text +="\nYou held a "+dieEffects[roll-1]+".";
 			dieSelected = false;
 			die.reset();
 		} else{ // if is unable to hold
-			// do smth man - figure out what to do pls
+			actionLog.Text +="\nYour hand is full.";
 			GD.Print("Cant hold!");
 		}
 		dieSelected = false; // deselects die 
@@ -173,11 +186,14 @@ public partial class Gameplay : Node2D
 		}
 		if(damage&&healing&&poison){ // heal dmg poison
 			if(atEnemy){
-				enemy.health -= getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				int dmg = getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				enemy.health -= dmg;
 				enemy.poison = false;
+				actionLog.Text +="\nYou dealt "+dmg+" using the rot combo.";
 			} else{
-				player.health -= getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
-				player.poison = false;
+				int dmg = getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				enemy.health -= dmg;				player.poison = false;
+				actionLog.Text +="\n"+enemy.name+" dealt "+dmg+" using the rot combo.";
 			}
 			spellbook["dmg_heal_psn"]="unlocked";
 		}
@@ -185,8 +201,10 @@ public partial class Gameplay : Node2D
 			if(poison){ // heal + poison
 				if(atEnemy){
 					player.poison = false;
+					actionLog.Text +="\nYou healed yourself of poison.";
 				} else{
 					enemy.poison = false;
+					actionLog.Text +="\n"+enemy.name+" healed themself of poison";
 				}
 				poison = false;
 				spellbook["heal_psn"]="unlocked";
@@ -194,8 +212,10 @@ public partial class Gameplay : Node2D
 			if(fire){ // heal + fire
 				if(atEnemy){
 					player.fire = false;
+					actionLog.Text +="\nYou healed yourself of burning.";
 				} else{
 					enemy.fire = false;
+					actionLog.Text +="\n"+enemy.name+" healed themself of burning";
 				}
 				fire = false;
 				spellbook["heal_fire"]="unlocked";
@@ -203,40 +223,54 @@ public partial class Gameplay : Node2D
 			if(ice){ // heal + ice
 				if(atEnemy){
 					player.ice = false;
+					actionLog.Text +="\nYou unfroze yourself.";
 				} else{
 					enemy.ice = false;
+					actionLog.Text +="\n"+enemy.name+" unfroze themself";
 				}
 				ice = false;
 				spellbook["heal_ice"]="unlocked";
 			}
 			if(damage&&!poison&&!fire&&!ice){ // heal + damage + no extra effects
 				if(atEnemy){
-					player.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					int amount = getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					player.health += amount;
 					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
+					actionLog.Text +="\nYou healed yourself of "+amount+" damage ("+player.health+"/"+globalVars.maxHealth+").";
 				} else{
-					enemy.health += getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					int amount = getCount(effects, "healing") * 15 + getCount(effects, "damage") * 10;
+					enemy.health += amount;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+					actionLog.Text +="\n"+enemy.name+" healed themself of "+amount+" damage ("+enemy.health+"/"+enemy.maxHealth+").";
 				}
 				damage = false;
 				spellbook["heal_dmg"]="unlocked";
 			} else if(damage){ // heal + damage + extra effects
 				if(atEnemy){
-					player.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					int amount = getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					player.health += amount;
 					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
+					actionLog.Text +="\nYou healed yourself of "+amount+" damage ("+player.health+"/"+globalVars.maxHealth+").";
 				} else{
-					enemy.health += getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					int amount = getCount(effects, "healing") * 10 + getCount(effects, "damage") * 5;
+					enemy.health += amount;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+					actionLog.Text +="\n"+enemy.name+" healed themself of "+amount+" damage ("+enemy.health+"/"+enemy.maxHealth+").";
 				}
 				damage = false;
 				spellbook["heal_dmg_effect"]="unlocked";
 			}
 			if(!damage&&!poison&&!fire&&!ice){ // regular healing
 				if(atEnemy){
-					player.health += getCount(effects, "healing") * 20;
+					int amount = getCount(effects, "healing") * 20;
+					player.health += amount;
 					if(player.health>globalVars.maxHealth){player.health=globalVars.maxHealth;}
+					actionLog.Text +="\nYou healed yourself of "+amount+" damage ("+player.health+"/"+globalVars.maxHealth+").";
 				} else{
+					int amount = getCount(effects, "healing") * 20;
 					enemy.health += getCount(effects, "healing") * 20;
 					if(enemy.health>enemy.maxHealth){enemy.health=enemy.maxHealth;}
+					actionLog.Text +="\n"+enemy.name+" healed themself of "+amount+" damage ("+enemy.health+"/"+enemy.maxHealth+").";
 				}
 			}
 		}
@@ -266,9 +300,11 @@ public partial class Gameplay : Node2D
 			if(atEnemy){
 				enemy.poisonInfo = new Vector2(10+getCount(effects, "damage")*3, getCount(effects, "poison") * 5);
 				enemy.poison = true;
+				actionLog.Text +="\nYou applied "+enemy.poisonInfo.X+" poison damage on action for "+enemy.poisonInfo.Y+" seconds.";
 			} else{
 				player.poisonInfo = new Vector2(10+getCount(effects, "damage")*3, getCount(effects, "poison") * 5);
 				player.poison = true;
+				actionLog.Text +="\n"+enemy.name+" applied "+player.poisonInfo.X+" poison damage on action for "+player.poisonInfo.Y+" seconds.";
 			}
 			poison = false;
 			damage = false;
@@ -278,9 +314,11 @@ public partial class Gameplay : Node2D
 			if(atEnemy){
 				enemy.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
 				enemy.fire = true;
+				actionLog.Text +="\nYou applied "+enemy.fireInfo.X+" fire damage per second for "+enemy.fireInfo.Y+" seconds.";
 			} else{
 				player.fireInfo = new Vector2(5+getCount(effects, "damage")*3, getCount(effects, "fire") * 5);
 				player.fire = true;
+				actionLog.Text +="\n"+enemy.name+" applied "+player.fireInfo.X+" fire damage every second for "+player.fireInfo.Y+" seconds.";
 			}
 			fire = false;
 			damage = false;
@@ -290,9 +328,11 @@ public partial class Gameplay : Node2D
 			if(atEnemy){
 				enemy.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
 				enemy.ice = true;
+				actionLog.Text +="\nYou froze "+enemy.name+" for "+enemy.iceInfo+" seconds.";
 			} else{
 				player.iceInfo = getCount(effects, "ice")*10+getCount(effects, "damage")*5;
 				player.ice = true;
+				actionLog.Text +="\n"+enemy.name+" froze you for "+player.iceInfo+" seconds.";
 			}
 			ice = false;
 			damage = false;
@@ -303,9 +343,11 @@ public partial class Gameplay : Node2D
 			if(atEnemy){
 				enemy.poisonInfo = new Vector2(10, getCount(effects, "poison") * 5);
 				enemy.poison = true;
+				actionLog.Text +="\nYou applied "+enemy.poisonInfo.X+" poison damage on action for "+enemy.poisonInfo.Y+" seconds.";
 			} else{
 				player.poisonInfo = new Vector2(10, getCount(effects, "poison") * 5);
 				player.poison = true;
+				actionLog.Text +="\n"+enemy.name+" applied "+player.poisonInfo.X+" poison damage on action for "+player.poisonInfo.Y+" seconds.";
 			}
 		}
 		if(fire){ // pure fire
@@ -317,9 +359,11 @@ public partial class Gameplay : Node2D
 					enemy.ice = false;
 					enemy.iceSprite.Visible = false;
 					enemy.fireSprite.Visible = false;
+					actionLog.Text +="\nYou thawed "+enemy.name+" dealing "+enemy.thawInfo.X+" thaw damage per second for "+enemy.thawInfo.Y+" seconds.";
 				} else{
 					enemy.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
 					enemy.fire = true;
+					actionLog.Text +="\nYou applied "+enemy.fireInfo.X+" fire damage per second for "+enemy.fireInfo.Y+" seconds.";
 				}
 				
 			} else{
@@ -330,10 +374,11 @@ public partial class Gameplay : Node2D
 					player.ice = false;
 					player.iceSprite.Visible = false;
 					player.fireSprite.Visible = false;
-
+					actionLog.Text +="\n"+enemy.name+" thawed you dealing "+player.thawInfo.X+" thaw damage every second for "+player.thawInfo.Y+" seconds.";
 				} else{
 					player.fireInfo = new Vector2(5, getCount(effects, "fire") * 5);
 					player.fire = true;
+					actionLog.Text +="\n"+enemy.name+" applied "+player.fireInfo.X+" fire damage every second for "+player.fireInfo.Y+" seconds.";
 				}
 			}
 		}
@@ -346,9 +391,11 @@ public partial class Gameplay : Node2D
 					enemy.ice = false;
 					enemy.iceSprite.Visible = false;
 					enemy.fireSprite.Visible = false;
+					actionLog.Text +="\nYou thawed "+enemy.name+" dealing "+enemy.thawInfo.X+" thaw damage per second for "+enemy.thawInfo.Y+" seconds.";
 				} else{
-					enemy.iceInfo = getCount(effects, "ice")*10;
+					enemy.iceInfo = getCount(effects, "ice")*5;
 					enemy.ice = true;
+					actionLog.Text +="\nYou froze "+enemy.name+" for "+enemy.iceInfo+" seconds.";
 				}
 				
 			} else{
@@ -359,17 +406,23 @@ public partial class Gameplay : Node2D
 					player.ice = false;
 					player.iceSprite.Visible = false;
 					player.fireSprite.Visible = false;
+					actionLog.Text +="\n"+enemy.name+" thawed you dealing "+player.thawInfo.X+" thaw damage every second for "+player.thawInfo.Y+" seconds.";
 				} else{
-					player.iceInfo = getCount(effects, "ice")*10;
+					player.iceInfo = getCount(effects, "ice")*5;
 					player.ice = true;
+					actionLog.Text +="\n"+enemy.name+" froze you for "+player.iceInfo+" seconds.";
 				}
 			}
 		}
 		if(damage){ // pure dmg
 			if(atEnemy){
-				enemy.health -= getCount(effects, "damage")*10;
+				int amount = getCount(effects, "damage")*10;
+				enemy.health -= amount;
+				actionLog.Text +="\nYou dealt "+amount+" damage to "+enemy.name+".";
 			} else{
-				player.health -= getCount(effects, "damage")*10;
+				int amount = getCount(effects, "damage")*10;
+				player.health -= amount;
+				actionLog.Text +="\n"+enemy.name+" dealt "+amount+" damage to you.";
 			}
 		}
 	}

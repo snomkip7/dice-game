@@ -24,6 +24,7 @@ public partial class globalVariables : Node
 	public int decisionTime = 7;
 	public int enemyHandSize = 2;
 	public int enemyIndex = 1;
+	public string enemyName="bob";
 
 
 	// Called when the node enters the scene tree for the first time.

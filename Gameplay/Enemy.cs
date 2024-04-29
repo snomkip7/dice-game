@@ -13,6 +13,7 @@ public partial class Enemy : Node2D
 	public int decisionBuffer = 3; // maybe make changeable
 	public string type = "none";
 	public int reward = 1;
+	public String name;
 
 	// effects:
 	public Vector2 poisonInfo = new Vector2(0,0); // first=dmg, second=time
@@ -101,6 +102,7 @@ public partial class Enemy : Node2D
 		aiLevel = globalVars.aiLevel;
 		decisionTime = globalVars.decisionTime;
 		handSize = globalVars.enemyHandSize;
+		name=globalVars.enemyName;
 		RandomNumberGenerator rng = new RandomNumberGenerator();
 		game.enemyDieEffects[0] = globalVars.effects[0];
 		game.enemyDieEffects[1] = globalVars.effects[rng.RandiRange(0,4)];
@@ -176,6 +178,7 @@ public partial class Enemy : Node2D
 					if(heldRolls[i]==-1){
 						heldRolls[i] = roll;
 						held = true;
+						game.actionLog.Text +="\n"+name+" added a "+game.enemyDieEffects[roll]+" to their hand.";
 						roll = -1;
 					}
 				}
@@ -223,61 +226,73 @@ public partial class Enemy : Node2D
 			effects[2]="poison";
 			callRoll(effects);
 		}
-		if(tempHealing&&tempIce&&ice){
+		else if(tempHealing&&tempIce&&ice){
 			string[] effects = new string[2];
 			effects[0]="healing";
 			effects[1]="ice";
 			callRoll(effects);
 		}
-		if(tempHealing&&tempFire&&fire){
+		else if(tempHealing&&tempFire&&fire){
 			string[] effects = new string[2];
 			effects[0]="healing";
 			effects[1]="fire";
 			callRoll(effects);
 		}
-		if(tempHealing&&tempPoison&&poison){
+		else if(tempHealing&&tempPoison&&poison){
 			string[] effects = new string[2];
 			effects[0]="healing";
 			effects[1]="poison";
 			callRoll(effects);
 		}
-		if(tempIce&&player.fire){
+		else if(tempIce&&player.fire){
 			string[] effects = new string[1];
 			effects[0]="ice";
 			callRoll(effects);
 		}
-		if(tempFire&&player.ice){
+		else if(tempFire&&player.ice){
 			string[] effects = new string[1];
 			effects[0]="ice";
 			callRoll(effects);
 		}
-		if(tempDamage&&tempPoison){
+		else if(tempDamage&&tempPoison){
 			string[] effects = new string[2];
 			effects[0]="damage";
 			effects[1]="poison";
 			callRoll(effects);
 		}
-		if(tempDamage&&tempFire){
+		else if(tempDamage&&tempFire){
 			string[] effects = new string[2];
 			effects[0]="damage";
 			effects[1]="fire";
 			callRoll(effects);
 		}
-		if(tempDamage&&tempIce){
+		else if(tempDamage&&tempIce){
 			string[] effects = new string[2];
 			effects[0]="damage";
 			effects[1]="ice";
 			callRoll(effects);
 		}
-		if(tempDamage&&tempHealing&&(maxHealth-health>20)){
+		else if(tempDamage&&tempHealing&&(maxHealth-health>20)){
 			string[] effects = new string[2];
 			effects[0]="damage";
 			effects[1]="healing";
 			callRoll(effects);
+		} else{
+			bool freeSlot = false;
+			for(int i=0; i<handSize&&!freeSlot;i++){
+				if(heldRolls[i]==-1){
+					freeSlot = true;
+					heldRolls[i]=roll;
+					roll=-1;
+				}
+			}
+			if(!freeSlot){
+				int[] rolls = new int[1];
+				rolls[0] = roll;
+				roll = -1;
+				game.rollEffects(rolls, false);
+			}
 		}
-
-		//GetParent<Gameplay>().rollEffects(rolls, false);
-		//roll = -1;
 	}
 
 	public void callRoll(string[] effects){
@@ -300,7 +315,7 @@ public partial class Enemy : Node2D
 		for(int i=0;i<rolls.Length;i++){
 			rolls[i]=Convert.ToInt32(nums[i]);
 		}
-		GetParent<Gameplay>().rollEffects(rolls, false);
+		game.rollEffects(rolls, false);
 	}
 
 	public void dmgCalculation(){

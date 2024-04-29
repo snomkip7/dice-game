@@ -1,6 +1,5 @@
-[gd_scene load_steps=11 format=3 uid="uid://cns22pubuk5fe"]
+[gd_scene load_steps=13 format=3 uid="uid://cns22pubuk5fe"]
 
-[ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="1_8bsum"]
 [ext_resource type="Script" path="res://Gameplay/Gameplay.cs" id="1_smwj2"]
 [ext_resource type="PackedScene" uid="uid://dqtivyqwycuck" path="res://Gameplay/HandItem.tscn" id="2_y118l"]
 [ext_resource type="Texture2D" uid="uid://d2lm5v32urhcf" path="res://Sprites/Game/gameBackground.png" id="3_ilnsw"]
@@ -10,6 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://dkvo8m21fvd2m" path="res://Gameplay/Player.tscn" id="5_on0ec"]
 [ext_resource type="Texture2D" uid="uid://dkuph0e7s1cgg" path="res://Sprites/Game/playButton.png" id="8_y7ave"]
 [ext_resource type="Texture2D" uid="uid://dvjhyyip22j4" path="res://Sprites/Game/holdButton.png" id="9_7648v"]
+[ext_resource type="Texture2D" uid="uid://bfbb4avelfcod" path="res://Sprites/Game/gameLose.png" id="10_lebfw"]
+[ext_resource type="Texture2D" uid="uid://bl7w7xsuoghf0" path="res://Sprites/Game/gameWin.png" id="11_4c5fa"]
+[ext_resource type="FontFile" uid="uid://br3254emsgqca" path="res://Sprites/Fonts/FingerPaint-Regular.ttf" id="12_1foea"]
 
 [node name="Gameplay" type="Node2D"]
 script = ExtResource("1_smwj2")
@@ -45,16 +47,16 @@ metadata/_edit_use_anchors_ = true
 
 [node name="HoldButtonSprite" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(484, 710)
+position = Vector2(486, 780)
 scale = Vector2(0.688571, 0.688571)
 texture = ExtResource("9_7648v")
 
 [node name="HoldRollButton" type="Button" parent="."]
 visible = false
-offset_left = 322.0
-offset_top = 581.0
-offset_right = 647.0
-offset_bottom = 839.0
+offset_left = 323.0
+offset_top = 652.0
+offset_right = 648.0
+offset_bottom = 910.0
 theme_override_font_sizes/font_size = 30
 flat = true
 
@@ -68,19 +70,29 @@ flat = true
 
 [node name="LoseBanner" type="Sprite2D" parent="GameEndButton"]
 visible = false
-modulate = Color(1, 0, 0, 1)
 z_index = 2
-position = Vector2(958, 470.752)
-scale = Vector2(14.9844, 5.38938)
-texture = ExtResource("1_8bsum")
+position = Vector2(959, 514)
+texture = ExtResource("10_lebfw")
 
 [node name="WinBanner" type="Sprite2D" parent="GameEndButton"]
 visible = false
-modulate = Color(0, 1, 0, 1)
 z_index = 2
-position = Vector2(958, 470.752)
-scale = Vector2(14.9844, 5.38938)
-texture = ExtResource("1_8bsum")
+position = Vector2(959, 514)
+texture = ExtResource("11_4c5fa")
+
+[node name="ActionLog" type="Label" parent="."]
+offset_left = 5.0
+offset_top = 293.0
+offset_right = 821.0
+offset_bottom = 646.0
+theme_override_colors/font_color = Color(0.0705882, 0.160784, 0.196078, 1)
+theme_override_fonts/font = ExtResource("12_1foea")
+theme_override_font_sizes/font_size = 24
+vertical_alignment = 2
+clip_text = true
+text_overrun_behavior = 1
+max_lines_visible = 9
+text_direction = 1
 
 [connection signal="pressed" from="PlayButton" to="." method="playRoll"]
 [connection signal="pressed" from="HoldRollButton" to="." method="holdRoll"]
