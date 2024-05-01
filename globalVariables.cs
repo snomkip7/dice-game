@@ -33,6 +33,7 @@ public partial class globalVariables : Node
 	public bool firePlus = false;
 	public bool icePlus = false;
 	public bool shopsVisited = false; // the bandaid code actually hurts my soul but I want to sleep tonight
+	public string enemySpritePath = "res://Sprites/Enemies/enemyZombie.png";
 
 
 	// Called when the node enters the scene tree for the first time.

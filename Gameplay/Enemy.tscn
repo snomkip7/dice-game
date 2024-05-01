@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://ejlhc4fuui1p"]
 
 [ext_resource type="Script" path="res://Gameplay/Enemy.cs" id="1_fh0ym"]
-[ext_resource type="Texture2D" uid="uid://emv1qc3x33ch" path="res://icon.svg" id="2_wvtlu"]
+[ext_resource type="Texture2D" uid="uid://w46yeavvrkvo" path="res://Sprites/Enemies/enemyGoblin.png" id="2_qvfhh"]
 [ext_resource type="Texture2D" uid="uid://dimb58e8tos6" path="res://Sprites/Dice/tempDiceIcon.png" id="3_5tvm4"]
 [ext_resource type="Texture2D" uid="uid://s7lcwoofcui" path="res://Sprites/Game/healthBarBase.png" id="4_0qmwh"]
 [ext_resource type="Texture2D" uid="uid://dnxk3kh0h7nnc" path="res://Sprites/Game/healthBarCover.png" id="5_fryqi"]
@@ -16,8 +16,7 @@ script = ExtResource("1_fh0ym")
 
 [node name="Enemy" type="Sprite2D" parent="."]
 position = Vector2(1560, 251)
-scale = Vector2(5.626, 3.922)
-texture = ExtResource("2_wvtlu")
+texture = ExtResource("2_qvfhh")
 
 [node name="EnemyDieBg" type="Sprite2D" parent="."]
 position = Vector2(932, 295)

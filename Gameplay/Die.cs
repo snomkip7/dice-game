@@ -8,6 +8,8 @@ public partial class Die : Area2D
 	public int sides = 6;
 	public Gameplay gameplay;
 	public Player player;
+	public int count = 0;
+	public string tempEffect = "";
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -48,7 +50,7 @@ public partial class Die : Area2D
 			player.health-= (int) (player.poisonInfo.X/3);
 		}
 		canRoll = false;
-		GetNode<Timer>("RollTimer").Start(); // replace timer with animation, with an if/else for slow animation if ice
+		GetNode<Timer>("RollTimer").Start(.2);
 		GD.Print("do be rollin");
 	}
 
@@ -58,7 +60,20 @@ public partial class Die : Area2D
 		canRoll = true;
 	}
 
+	public void rollNext(){
+		count++;
+		if(count>=1&&count<=6){
+			tempEffect = gameplay.dieEffects[count-1];
+			updateSprite();
+			GetNode<Timer>("RollTimer").Start(.2);
+		} else if(count==7){
+			tempEffect = "";
+			rollEnded();
+		}
+	}
+
 	public void rollEnded(){ // rn it starts after 1 sec, but should be made to start after animation ended
+		count = 0;
 		nextRoll = new RandomNumberGenerator().RandiRange(1, sides); // randomly selects a number and updates sprite
 		//canRole = false;
 		GD.Print("roll ended");
@@ -71,6 +86,9 @@ public partial class Die : Area2D
 		string effect = "none";
 		if(nextRoll>=1&&nextRoll<=6){
 			effect = gameplay.dieEffects[nextRoll-1];
+		}
+		if(tempEffect!=""){
+			effect = tempEffect;
 		}
 		
 		switch(effect){
