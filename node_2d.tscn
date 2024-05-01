@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://cp084stcoby2g"]
+
+[ext_resource type="PackedScene" uid="uid://dfg6qm282qxyc" path="res://DiceBuilding/DieFace.tscn" id="1_assb5"]
+[ext_resource type="PackedScene" uid="uid://dw4b0enjdk2tj" path="res://DiceBuilding/DieSlot.tscn" id="2_2xm5a"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchor_right = 0.085
+anchor_bottom = 0.075
+offset_right = 36.8
+offset_bottom = 26.0
+
+[node name="DieFace" parent="." instance=ExtResource("1_assb5")]
+position = Vector2(180, 259)
+
+[node name="DieSlot0" parent="." instance=ExtResource("2_2xm5a")]
+position = Vector2(1020, 719)
+
+[node name="DieFace2" parent="." instance=ExtResource("1_assb5")]
+position = Vector2(475, 424)
+
+[node name="DieSlot1" parent="." instance=ExtResource("2_2xm5a")]
+position = Vector2(1046, 215)

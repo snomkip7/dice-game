@@ -13,6 +13,7 @@ public partial class globalVariables : Node
 	// player stuff (set to default values)
 	public Dictionary<string, string> spellbook = new Dictionary<string, string>();
 	public int maxHealth = 100;
+	public int currentHealth;
 	public string[] dieEffects = new string[7];
 	public int handSize = 2;
 	// enemy stuff (set to default value)
@@ -24,7 +25,14 @@ public partial class globalVariables : Node
 	public int decisionTime = 7;
 	public int enemyHandSize = 2;
 	public int enemyIndex = 1;
+	public int money = 0;
 	public string enemyName="bob";
+	public bool quantumUnlocked = false;
+	public bool healPlus = false;
+	public bool poisonPlus = false;
+	public bool firePlus = false;
+	public bool icePlus = false;
+	public bool shopsVisited = false; // the bandaid code actually hurts my soul but I want to sleep tonight
 
 
 	// Called when the node enters the scene tree for the first time.

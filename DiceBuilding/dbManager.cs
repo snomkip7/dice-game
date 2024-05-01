@@ -4,13 +4,31 @@ using System.Collections.Generic;
 
 public partial class dbManager : Control
 {
-	//public static List<DieSlot> DieSlots = new();
-	// Called when the node enters the scene tree for the first time.
 	private static globalVariables globalVariables = new();
+	public static Area2D qDieSlot;
 	public override void _Ready()
 	{
 		globalVariables = GetNode<globalVariables>("/root/GlobalVariables");
-		return;
+		if(globalVariables.quantumUnlocked && GetNode<Area2D>("DieSlotQ").Position != new Vector2(960, 270)){
+			qDieSlot = GetNode<Area2D>("DieSlotQ");
+			qDieSlot.GetNode<Sprite2D>("Sprite2D").Texture = ResourceLoader.Load("res://DiceBuilding/Sprites/quantumSlot.png") as Texture2D;
+			qDieSlot.Position = new Vector2(1665, 700);
+			//qDieSlot.SetDeferred("visible", true);
+		} else {
+			GetNode<Area2D>("DieSlotQ").Position = new Vector2(-999, -999);
+		}
+		if(globalVariables.healPlus){
+			GetNode<Node2D>("DieFace11").Position = new Vector2(598, 506);
+		}
+		if(globalVariables.poisonPlus){
+			GetNode<Node2D>("DieFace12").Position = new Vector2(838, 506);
+		}
+		if(globalVariables.firePlus){
+			GetNode<Node2D>("DieFace13").Position = new Vector2(1078, 506);
+		}
+		if(globalVariables.icePlus){
+			GetNode<Node2D>("DieFace14").Position = new Vector2(1318, 506);
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -19,21 +37,31 @@ public partial class dbManager : Control
 		return;
 	}
 
-	public static bool MatchMaker(Area2D face, Area2D slot){
-		return false;
+	public void OnWarningButtonPressed(){
+		Button wB = GetNode<Button>("WarningButton");
+		wB.SetDeferred("disabled", true);
+		wB.SetDeferred("visible", false);
 	}
 
 	public void SaveDice(){
 		List<String> savedFaces = new();
 		int i = 0;
-		while(GetNode<Node2D>("DieFace" + i) != null){
+		while(i < 15){
 			DieFace curDie = GetNode<Node2D>("DieFace" + i) as DieFace;
-			if(curDie.GetNode<Area2D>("Area2D").IsInGroup("slotted")){
+			GD.Print(curDie.Position);
+			if(curDie.Position.Y < 300  || curDie.Position.X > 1500){
 				savedFaces.Add(curDie.face);
+				GD.Print("face: ", curDie.Position.Y, " = ", curDie.Position.X);
 			}
 			i++;
 		}
-		globalVariables.dieEffects = savedFaces.ToArray();
-		GetTree().ChangeSceneToFile("res://MainMenu.tscn");
+		if(savedFaces.Count < 6 || savedFaces.Count > 7){
+			savedFaces = new();
+			GetNode<Button>("WarningButton").SetDeferred("disabled", false);
+			GetNode<Button>("WarningButton").SetDeferred("visible", true);
+		} else {
+			globalVariables.dieEffects = savedFaces.ToArray();
+			GetTree().ChangeSceneToFile("res://Shop/Shop.tscn");
+		}
 	}
 }

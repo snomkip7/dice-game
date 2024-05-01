@@ -65,8 +65,10 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2(2.08165e-12, 2.08165e-12)
-scale = Vector2(0.75, 0.75)
+scale = Vector2(0.65, 0.65)
 shape = SubResource("RectangleShape2D_odv1l")
 
 [connection signal="liftUp" from="." to="DieBG" method="_on_die_face_lift_up"]
 [connection signal="area_entered" from="Area2D" to="." method="OnAreaEntered"]
+[connection signal="mouse_entered" from="Area2D" to="." method="MouseEntered"]
+[connection signal="mouse_exited" from="Area2D" to="." method="MouseExited"]

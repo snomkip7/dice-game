@@ -1,24 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://ep20oqh6sfcd"]
+[gd_scene load_steps=8 format=3 uid="uid://ep20oqh6sfcd"]
 
-[ext_resource type="Texture2D" uid="uid://cc5adm1nf66fx" path="res://DiceBuilding/Sprites/woodBG.png" id="1_2kulo"]
 [ext_resource type="Script" path="res://DiceBuilding/dbManager.cs" id="1_auj5b"]
+[ext_resource type="Texture2D" uid="uid://d2lm5v32urhcf" path="res://Sprites/Game/gameBackground.png" id="2_iggj3"]
 [ext_resource type="PackedScene" uid="uid://dw4b0enjdk2tj" path="res://DiceBuilding/DieSlot.tscn" id="2_r0sfo"]
 [ext_resource type="PackedScene" uid="uid://dfg6qm282qxyc" path="res://DiceBuilding/DieFace.tscn" id="3_igylo"]
+[ext_resource type="Texture2D" uid="uid://c1i1mmd0jrgvv" path="res://Shop/Sprites/dbReturn.png" id="5_8yeon"]
+[ext_resource type="Texture2D" uid="uid://bmu5rpa60iqdi" path="res://DiceBuilding/Sprites/diceDropShadow.png" id="6_auljk"]
+[ext_resource type="Texture2D" uid="uid://chmmi7k30mxka" path="res://DiceBuilding/Sprites/warningSign.png" id="7_fntfd"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_right = 0.057
+anchor_bottom = 0.051
+offset_right = 0.559993
+offset_bottom = -0.080003
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_auj5b")
 
 [node name="tempBG" type="Sprite2D" parent="."]
-modulate = Color(100, 100, 100, 1)
 show_behind_parent = true
 position = Vector2(960, 540)
-texture = ExtResource("1_2kulo")
+texture = ExtResource("2_iggj3")
 
 [node name="DieSlot0" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
 position = Vector2(270, 178)
@@ -37,6 +40,10 @@ position = Vector2(1374, 178)
 
 [node name="DieSlot5" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
 position = Vector2(1650, 178)
+
+[node name="DieSlotQ" parent="." groups=["slot"] instance=ExtResource("2_r0sfo")]
+position = Vector2(-999, -999)
+scale = Vector2(0.96, 0.96)
 
 [node name="DieFace0" parent="." instance=ExtResource("3_igylo")]
 position = Vector2(358, 954)
@@ -80,13 +87,56 @@ face = "poison"
 position = Vector2(1078, 730)
 face = "fire"
 
+[node name="DieFace11" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(-956, 1421)
+
+[node name="DieFace12" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(-716, 1421)
+face = "poison"
+
+[node name="DieFace13" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(-476, 1421)
+face = "fire"
+
+[node name="DieFace14" parent="." instance=ExtResource("3_igylo")]
+position = Vector2(-236, 1421)
+face = "ice"
+
 [node name="Button" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.08
 anchor_bottom = 0.088
-offset_right = -0.600011
-offset_bottom = -0.0400075
-text = "Save"
+offset_right = 145.2
+offset_bottom = 144.16
+flat = true
+
+[node name="Sprite2D" type="Sprite2D" parent="Button"]
+position = Vector2(89, 70)
+scale = Vector2(0.40332, 0.411133)
+texture = ExtResource("5_8yeon")
+
+[node name="WarningButton" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.036
+anchor_right = 17.482
+anchor_bottom = 19.655
+offset_left = -0.0399998
+offset_top = -4.0
+offset_right = -0.0200386
+offset_bottom = -0.0250378
+disabled = true
+
+[node name="Sprite2D2" type="Sprite2D" parent="WarningButton"]
+position = Vector2(915, 563)
+scale = Vector2(1.125, 1)
+texture = ExtResource("6_auljk")
+
+[node name="Sprite2D" type="Sprite2D" parent="WarningButton"]
+position = Vector2(900, 530)
+texture = ExtResource("7_fntfd")
 
 [connection signal="pressed" from="Button" to="." method="SaveDice"]
+[connection signal="pressed" from="WarningButton" to="." method="OnWarningButtonPressed"]

@@ -19,6 +19,7 @@ scale = Vector2(0.4, 0.4)
 texture = ExtResource("1_auoy5")
 
 [node name="Info" type="RichTextLabel" parent="."]
+visible = false
 offset_left = -147.0
 offset_top = 116.0
 offset_right = 145.0

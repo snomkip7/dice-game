@@ -10,6 +10,7 @@ public partial class DieFace : Node2D
 	[Signal]
 	public delegate void liftUpEventHandler(bool active);
 	public bool active = false;
+	private bool focus = false;
 	[Export(PropertyHint.Enum,"damage,healing,poison,fire,ice")]
 	public String face = "";
 	private const float FollowSpeed = 2.0f;
@@ -41,30 +42,36 @@ public partial class DieFace : Node2D
             _ => 0,
         };
     }
+	private void MouseEntered(){
+		focus = true;
+	}
+	private void MouseExited(){
+		focus = false;
+	}
 	public override void _Process(double delta)
 	{
 		//REMOVE THIS LATER
 		switch(area.IsInGroup("slotted")){
 			case(true):
-				GetNode<Sprite2D>("DieBG").Modulate = new Color(0, 0, 0);
+				GetNode<Sprite2D>("DieBG").Modulate = new Color(255, 255, 255, 0.5f);
 				break;
 			case(false):
-				GetNode<Sprite2D>("DieBG").Modulate = new Color(255,255,255);
+				GetNode<Sprite2D>("DieBG").Modulate = new Color(255,255,255, 1f);
 				break;
 		}
-
-
-		if(Input.IsActionJustPressed("leftClick")){
-			if(lastLerp == new Vector2(0,0)){lastLerp = globalVariables.lastMousePos;}
-			area.SetCollisionMaskValue(2, true); // Disables detection with other slots on the way back
-
-			if(globalVariables.mousePosition.DistanceTo(Position) < 125){
+		
+		if(focus){
+			if(Input.IsActionJustPressed("leftClick")){
+				lastLerp = globalVariables.lastMousePos;
+				area.SetCollisionMaskValue(2, true); // Disables detection with other slots on the way back
 				active = true;
+				area.AddToGroup("active");
+				SetDeferred("top_level", true);
+				//area.RemoveFromGroup("slotted");
 				returnPos = this.Position;	
 				this.EmitSignal("liftUp", active);
-			}
-		} else if(!Input.IsActionPressed("leftClick")){
-			if(globalVariables.mousePosition.DistanceTo(Position) < 125){
+
+			} else if(!Input.IsActionPressed("leftClick")){
 				active = false;
 			}
 		}
@@ -87,13 +94,17 @@ public partial class DieFace : Node2D
 		}
 
 		if(active){
-			this.Position = lastLerp;
-			lastLerp = globalVariables.lastMousePos.Lerp(globalVariables.mousePosition, (float)delta * FollowSpeed);
+			this.Position = globalVariables.mousePosition;
+			//this.Position = lastLerp;
+			//lastLerp = globalVariables.lastMousePos.Lerp(globalVariables.mousePosition, (float)delta * FollowSpeed);
 		} else {
 			area.SetCollisionMaskValue(2, false);
-			if(this.Position != returnPos){
+			if(this.Position.DistanceTo(returnPos) > 0.001){
 				var tween = GetTree().CreateTween();
 				tween.TweenProperty(this, "position", returnPos, 0.2);
+			} else {
+				SetDeferred("top_level", false);
+				area.RemoveFromGroup("active"); // active group is not the same as the active var, active group is whether the tile is stationary or being moved
 			}
 			this.EmitSignal("liftUp", active);
 		}

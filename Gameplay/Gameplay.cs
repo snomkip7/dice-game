@@ -447,6 +447,7 @@ public partial class Gameplay : Node2D
 	}
 
 	public void gameEnd(){
+		globalVars.currentHealth = (int)player.health;
 		GetTree().ChangeSceneToFile("res://MainMenu.tscn");
 	}
 }
