@@ -39,13 +39,15 @@ public partial class Enemy : Node2D
 	public Sprite2D poisonSprite;
 	public Sprite2D thawSprite;
 	public Player player;
+	public Sprite2D sprite;
+	public Color regularModulate;
 
 	public override void _Ready()
 	{
 		game = GetParent<Gameplay>();
 		// set all those attributes based on text file, also add a sprite
 		// fill out enemyDieEffects in gameplay
-		getInfo();
+		
 		heldRolls = new int[handSize];
 		for(int i = 0; i < handSize;i++){
 			heldRolls[i] = -1;
@@ -58,6 +60,9 @@ public partial class Enemy : Node2D
 		poisonSprite = GetNode<Sprite2D>("PoisonSprite");
 		thawSprite = GetNode<Sprite2D>("ThawSprite");
 		player = GetNode<Player>("../Player");
+		sprite = GetNode<Sprite2D>("Enemy");
+		regularModulate = sprite.Modulate;
+		getInfo();
 	}
 
 	// public void loadInfoFromTxt(){
@@ -110,6 +115,7 @@ public partial class Enemy : Node2D
 		game.enemyDieEffects[3] = globalVars.effects[rng.RandiRange(0,4)];
 		game.enemyDieEffects[4] = globalVars.effects[rng.RandiRange(0,4)];
 		game.enemyDieEffects[5] = globalVars.effects[rng.RandiRange(0,4)];
+		sprite.Texture = (Texture2D) ResourceLoader.Load(globalVars.enemySpritePath);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -319,6 +325,7 @@ public partial class Enemy : Node2D
 	}
 
 	public void dmgCalculation(){
+		bool Noteffected = true;
 		if(poison){ // poison
 			GD.Print("poisoned");
 			poisonSprite.Visible = true;
@@ -328,6 +335,8 @@ public partial class Enemy : Node2D
 				poison = false;
 				poisonSprite.Visible = false;
 			}
+			Noteffected=false;
+			sprite.Modulate = new Color(regularModulate.R+10, regularModulate.G, regularModulate.B+10);
 		}
 		if(fire){ // fire
 			GD.Print("ah, thats hot");
@@ -340,6 +349,8 @@ public partial class Enemy : Node2D
 				fire = false;
 				fireSprite.Visible = false;
 			}
+			Noteffected=false;
+			sprite.Modulate = new Color(regularModulate.R+30, regularModulate.G+10, regularModulate.B);
 		}
 		if(ice){ // ice
 			GD.Print("antartica moment");
@@ -350,6 +361,8 @@ public partial class Enemy : Node2D
 				ice = false;
 				iceSprite.Visible = false;
 			}
+			Noteffected=false;
+			sprite.Modulate = new Color(regularModulate.R, regularModulate.G, regularModulate.B+50);
 		}
 		if(thaw){
 			GD.Print("bros meltin under the pressure");
@@ -360,6 +373,11 @@ public partial class Enemy : Node2D
 				thaw = false;
 				thawSprite.Visible = false;
 			}
+			Noteffected=false;
+			sprite.Modulate = new Color(regularModulate.R, regularModulate.G, regularModulate.B+10);
+		}
+		if(Noteffected){
+			sprite.Modulate = regularModulate;
 		}
 	}
 

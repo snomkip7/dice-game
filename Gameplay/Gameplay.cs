@@ -95,18 +95,10 @@ public partial class Gameplay : Node2D
 
 	public void playRoll(){ // finds all the things that are selected and calls useRoll
 		// do the thing
-		if(player.ice){
-			GD.Print("Cant play roll while frozen");
-			actionLog.Text +="\nYou can't play rolls while frozen.";
-			return;
-		}
 
 		Die die = GetNode<Die>("Die");
 		int roll = die.nextRoll;
-		if(dieSelected){ // removing the hold button if die is played
-			GetNode<Button>("HoldRollButton").Visible = false;
-			GetNode<Sprite2D>("HoldButtonSprite").Visible = false;
-		}
+		
 		int[] rolls;
 		int iter = 0;
 		if(dieSelected){ // adding the die if it is selected
@@ -120,23 +112,73 @@ public partial class Gameplay : Node2D
 		for(int i = 0; i < handSize; i++){ // adding all selected hand items and updating them to be empty
 			if(handItems[i].selected){
 				rolls[iter] = handItems[i].roll;
-				handItems[i].selected = false;
-				handItems[i].updateItem(-1);
 				iter++;
 			}
 		}
 
-		if(player.poison){ // poison dmg if needed
-			player.health -= player.poisonInfo.X;
-			actionLog.Text +="\nYou took "+player.poisonInfo.X+" poison damage.";
+		if(player.ice&&!isCombo(rolls, true)){
+			GD.Print("Cant play roll while frozen");
+			actionLog.Text +="\nYou can't play rolls while frozen.";
+			return;
 		}
 
-		rollEffects(rolls, true); // calling the function that does the actual effects
-		if(dieSelected){ // resetting die if needed
-			dieSelected = false;
-			die.reset();
+		if(isCombo(rolls, false)){
+			if(dieSelected){ // removing the hold button if die is played
+				GetNode<Button>("HoldRollButton").Visible = false;
+				GetNode<Sprite2D>("HoldButtonSprite").Visible = false;
+			}
+
+			if(player.poison){ // poison dmg if needed
+				player.health -= player.poisonInfo.X;
+				actionLog.Text +="\nYou took "+player.poisonInfo.X+" poison damage.";
+			}
+
+			rollEffects(rolls, true); // calling the function that does the actual effects
+
+			for(int i = 0; i < handSize; i++){ // empty hand items that were used
+				if(handItems[i].selected){
+					handItems[i].selected = false;
+					handItems[i].updateItem(-1);
+				}
+			}
+
+			if(dieSelected){ // resetting die if needed
+				dieSelected = false;
+				die.reset();
+			}
+		} else{
+			actionLog.Text +="\nThat is not a valid combo.";
 		}
+
+		
 	}
+
+	public bool isCombo(int[] rolls, bool iceheal){
+		string[] effects = new string[rolls.Length];
+		bool healing = false;
+		bool damage = false;
+		bool poison = false;
+		bool fire = false;
+		bool ice = false;
+		for(int i=0;i<rolls.Length;i++){ // setting bools based on used faces
+			
+			effects[i] = dieEffects[rolls[i]-1];
+		
+			if(effects[i]=="healing"){healing=true;}
+			if(effects[i]=="damage"){damage=true;}
+			if(effects[i]=="poison"){poison=true;}
+			if(effects[i]=="fire"){fire=true;}
+			if(effects[i]=="ice"){ice=true;}
+		}
+
+		if(iceheal){
+			return healing&&ice&&!damage&&!poison&&!fire;
+		}
+
+		return healing||(damage&&fire&&!ice&&!poison)||(damage&&ice&&!fire&&!poison)||(damage&&poison&&!fire&&!ice)||(fire&&!poison&&!damage&&!ice)||(!fire&&poison&&!damage&&!ice)||(!fire&&!poison&&!damage&&ice)||(!fire&&!poison&&damage&&!ice);
+	}
+
+	
 
 	public void holdRoll(){ // adding a roll to the hand
 		// do the thing
@@ -186,16 +228,20 @@ public partial class Gameplay : Node2D
 		}
 		if(damage&&healing&&poison){ // heal dmg poison
 			if(atEnemy){
-				int dmg = getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
+				int dmg = (getCount(effects, "damage") + getCount(effects, "healing") + getCount(effects, "poison")) * 12;
 				enemy.health -= dmg;
 				enemy.poison = false;
 				actionLog.Text +="\nYou dealt "+dmg+" using the rot combo.";
 			} else{
-				int dmg = getCount(effects, "damage") * getCount(effects, "healing") * getCount(effects, "poison") * 12;
-				enemy.health -= dmg;				player.poison = false;
+				int dmg = (getCount(effects, "damage") + getCount(effects, "healing") + getCount(effects, "poison")) * 12;
+				player.health -= dmg;
+				player.poison = false;
 				actionLog.Text +="\n"+enemy.name+" dealt "+dmg+" using the rot combo.";
 			}
 			spellbook["dmg_heal_psn"]="unlocked";
+			damage = false;
+			healing = false;
+			poison = false;
 		}
 		if (healing){ // all this for healing
 			if(poison){ // heal + poison

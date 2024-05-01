@@ -25,6 +25,7 @@ public partial class globalVariables : Node
 	public int enemyHandSize = 2;
 	public int enemyIndex = 1;
 	public string enemyName="bob";
+	public string enemySpritePath = "res://Sprites/Enemies/enemyZombie.png";
 
 
 	// Called when the node enters the scene tree for the first time.

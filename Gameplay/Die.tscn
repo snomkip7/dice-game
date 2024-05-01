@@ -32,4 +32,4 @@ wait_time = 1.5
 one_shot = true
 
 [connection signal="input_event" from="." to="." method="rollDice"]
-[connection signal="timeout" from="RollTimer" to="." method="rollEnded"]
+[connection signal="timeout" from="RollTimer" to="." method="rollNext"]
