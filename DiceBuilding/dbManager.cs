@@ -9,6 +9,24 @@ public partial class dbManager : Control
 	public override void _Ready()
 	{
 		globalVariables = GetNode<globalVariables>("/root/GlobalVariables");
+
+		if(globalVariables.healPlus){
+			GetNode<Node2D>("DieFace11").SetDeferred("visible", true);
+			//GetNode<Node2D>("DieFace11").Position = new Vector2(598, 506);
+		}
+		if(globalVariables.poisonPlus){
+			GetNode<Node2D>("DieFace12").SetDeferred("visible", true);
+			//GetNode<Node2D>("DieFace12").Position = new Vector2(838, 506);
+		}
+		if(globalVariables.firePlus){
+			GetNode<Node2D>("DieFace13").SetDeferred("visible", true);
+			//GetNode<Node2D>("DieFace13").Position = new Vector2(838, 506);
+		}
+		if(globalVariables.icePlus){
+			GetNode<Node2D>("DieFace14").SetDeferred("visible", true);
+			//GetNode<Node2D>("DieFace14").Position = new Vector2(838, 506);
+		}
+
 		if(globalVariables.quantumUnlocked && GetNode<Area2D>("DieSlotQ").Position != new Vector2(960, 270)){
 			qDieSlot = GetNode<Area2D>("DieSlotQ");
 			qDieSlot.GetNode<Sprite2D>("Sprite2D").Texture = ResourceLoader.Load("res://DiceBuilding/Sprites/quantumSlot.png") as Texture2D;
@@ -16,18 +34,6 @@ public partial class dbManager : Control
 			//qDieSlot.SetDeferred("visible", true);
 		} else {
 			GetNode<Area2D>("DieSlotQ").Position = new Vector2(-999, -999);
-		}
-		if(globalVariables.healPlus){
-			GetNode<Node2D>("DieFace11").Position = new Vector2(598, 506);
-		}
-		if(globalVariables.poisonPlus){
-			GetNode<Node2D>("DieFace12").Position = new Vector2(838, 506);
-		}
-		if(globalVariables.firePlus){
-			GetNode<Node2D>("DieFace13").Position = new Vector2(1078, 506);
-		}
-		if(globalVariables.icePlus){
-			GetNode<Node2D>("DieFace14").Position = new Vector2(1318, 506);
 		}
 	}
 

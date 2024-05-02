@@ -172,15 +172,16 @@ public partial class Enemy : Node2D
 			roll = -1;
 		} else{ // smart move - hold roll for combo
 			bool held = false; // try to hold the die
-			for(int i = 0; i < handSize && held==false; i++){
+			for(int i = 0; i < heldRolls.Length && !held; i++){
 				if(heldRolls[i]==-1){
 					heldRolls[i] = roll;
 					held = true;
+					roll = -1;
 				}
 			}
 			playCombo();
 			if(!held&&roll!=-1){ // holding die if it failed to hold earlier (and didn't play the die)
-				for(int i = 0; i < handSize && held==false; i++){
+				for(int i = 0; i < heldRolls.Length && held==false; i++){
 					if(heldRolls[i]==-1){
 						heldRolls[i] = roll;
 						held = true;
@@ -208,7 +209,7 @@ public partial class Enemy : Node2D
 		bool tempIce = false;
 		bool tempFire = false;
 
-		for(int i=0;i<handSize;i++){
+		for(int i=0;i<heldRolls.Length;i++){
 			if(heldRolls[i]!=-1){
 				string effect = game.enemyDieEffects[heldRolls[i]];
 				if(effect=="healing"){tempHealing=true;}
@@ -285,7 +286,7 @@ public partial class Enemy : Node2D
 			callRoll(effects);
 		} else{
 			bool freeSlot = false;
-			for(int i=0; i<handSize&&!freeSlot;i++){
+			for(int i=0; i<heldRolls.Length&&!freeSlot;i++){
 				if(heldRolls[i]==-1){
 					freeSlot = true;
 					heldRolls[i]=roll;
@@ -303,7 +304,7 @@ public partial class Enemy : Node2D
 
 	public void callRoll(string[] effects){
 		string nums = "";
-		for(int i=0;i<handSize;i++){
+		for(int i=0;i<heldRolls.Length;i++){
 			for(int j=0;j<effects.Length;j++){
 				if(heldRolls[i]!=-1&&effects[j]==game.enemyDieEffects[heldRolls[i]]){
 					nums += heldRolls[i];

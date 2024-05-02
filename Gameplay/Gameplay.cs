@@ -19,6 +19,7 @@ public partial class Gameplay : Node2D
 	public bool gameEnded;
 	public globalVariables globalVars;
 	public Label actionLog;
+	public bool win = false;
 	
 	public override void _Ready()
 	{
@@ -47,6 +48,7 @@ public partial class Gameplay : Node2D
 			GetNode<Button>("GameEndButton").Visible = true;
 			GetNode<Button>("GameEndButton").GetNode<Sprite2D>("WinBanner").Visible = true;
 			gameEnded = true;
+			win = true;
 		} else if(player.health<=0&&!gameEnded){ // checking if enemy wins
 			GD.Print("YOU LOST, GET GOOD WHEN");
 			// L BOZO 
@@ -494,6 +496,10 @@ public partial class Gameplay : Node2D
 
 	public void gameEnd(){
 		globalVars.currentHealth = (int)player.health;
-		GetTree().ChangeSceneToFile("res://MainMenu.tscn");
+		globalVariables.battleNum += 1;
+		if(globalVariables.battleNum > 3 || win == false){
+			GetTree().ChangeSceneToFile("res://MainMenu.tscn");
+		}
+		GetTree().ChangeSceneToFile("res://Shop/Shop.tscn");
 	}
 }

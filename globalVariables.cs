@@ -21,7 +21,7 @@ public partial class globalVariables : Node
 	public string[] effects = new string[5];
 	public string enemyType = "none";
 	public int enemyReward = 20;
-	public int aiLevel = 1;
+	public int aiLevel = 5;
 	public int decisionTime = 7;
 	public int enemyHandSize = 2;
 	public int enemyIndex = 1;
@@ -32,8 +32,9 @@ public partial class globalVariables : Node
 	public bool poisonPlus = false;
 	public bool firePlus = false;
 	public bool icePlus = false;
-	public bool shopsVisited = false; // the bandaid code actually hurts my soul but I want to sleep tonight
+	public static bool shopsVisited = false; // the bandaid code actually hurts my soul but I want to sleep tonight
 	public string enemySpritePath = "res://Sprites/Enemies/enemyZombie.png";
+	public static int battleNum = 1;
 
 
 	// Called when the node enters the scene tree for the first time.

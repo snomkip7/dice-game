@@ -327,7 +327,7 @@ offset_bottom = 16.6
 rotation = 0.0174533
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 bbcode_enabled = true
-text = "[center]Textbox"
+text = "[center]Extra Face"
 scroll_active = false
 
 [node name="Label1" type="AnimatedSprite2D" parent="Slot1"]
@@ -370,7 +370,7 @@ offset_bottom = 16.6
 rotation = -0.0523599
 theme_override_colors/default_color = Color(0, 0, 0, 1)
 bbcode_enabled = true
-text = "[center]Textbox"
+text = "[center]Extra Face"
 scroll_active = false
 
 [node name="Label2" type="AnimatedSprite2D" parent="Slot2"]
@@ -391,7 +391,7 @@ offset_left = 456.0
 offset_top = 816.0
 offset_right = 515.0
 offset_bottom = 860.0
-item = "fire"
+item = "poison"
 
 [node name="Button2" type="Button" parent="Slot2"]
 layout_mode = 1

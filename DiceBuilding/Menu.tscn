@@ -88,18 +88,22 @@ position = Vector2(1078, 730)
 face = "fire"
 
 [node name="DieFace11" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(-956, 1421)
+visible = false
+position = Vector2(598, 505)
 
 [node name="DieFace12" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(-716, 1421)
+visible = false
+position = Vector2(838, 505)
 face = "poison"
 
 [node name="DieFace13" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(-476, 1421)
+visible = false
+position = Vector2(1078, 505)
 face = "fire"
 
 [node name="DieFace14" parent="." instance=ExtResource("3_igylo")]
-position = Vector2(-236, 1421)
+visible = false
+position = Vector2(1318, 505)
 face = "ice"
 
 [node name="Button" type="Button" parent="."]

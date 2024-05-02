@@ -15,7 +15,7 @@ public partial class MainMenu : Control
 
 	private void gameButtonPressed() // to the gameplay
 	{
-		GD.Print("omg you pressed the button!");
+		//GD.Print("omg you pressed the button!");
 		GetTree().ChangeSceneToFile("res://Gameplay/Gameplay.tscn");
 	}
 }

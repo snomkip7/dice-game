@@ -13,7 +13,8 @@ public partial class Shop : Control
 			GetNode<AnimatedSprite2D>("Background").Frame = 1;
 			GetNode<Control>("SlotQ").GetNode<Button>("ButtonQ").SetDeferred("disabled", true);
 		}
-		if(globalVariables.shopsVisited){
+		if(globalVariables.shopsVisited == true){
+			GD.Print("this ran");
 			GetNode<Control>("Slot1").GetNode<AnimatedSprite2D>("Label1").Frame = 2;
 			GetNode<Control>("Slot2").GetNode<AnimatedSprite2D>("Label2").Frame = 2;
 			GetNode<Control>("Slot3").GetNode<AnimatedSprite2D>("Label3").Frame = 0;
@@ -96,6 +97,27 @@ public partial class Shop : Control
 	}
 
 	private void OnExitPressed(){
+		switch(globalVariables.battleNum){
+			case 1:
+				break;
+			case 2:
+				globalVariables.enemyHandSize = 3;
+				globalVariables.enemyMaxHealth = 250;
+				globalVariables.decisionTime = 5;
+				globalVariables.aiLevel = 10;
+				globalVariables.enemySpritePath = "res://Sprites/Enemies/enemyGoblin.png";
+				break;
+			case 3:
+				globalVariables.enemyHandSize = 4;
+				globalVariables.enemyMaxHealth = 500;
+				globalVariables.decisionTime = 3;
+				globalVariables.aiLevel = 15;
+				globalVariables.enemySpritePath = "res://Sprites/Enemies/enemyDude.png";
+				break;
+		}
+		if(globalVariables.shopsVisited == false){
+			globalVariables.shopsVisited = true;
+		}
 		GetTree().ChangeSceneToFile("res://Gameplay/Gameplay.tscn");
 	}
 }
